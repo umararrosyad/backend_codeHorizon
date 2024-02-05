@@ -14,7 +14,6 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   expedition.init({
-    expedition_id: DataTypes.INTEGER,
     expedition_name: DataTypes.INTEGER,
     photo_url: DataTypes.STRING
   }, {

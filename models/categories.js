@@ -14,7 +14,6 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   categories.init({
-    category_id: DataTypes.INTEGER,
     category_name: DataTypes.STRING,
     photo_url: DataTypes.STRING
   }, {

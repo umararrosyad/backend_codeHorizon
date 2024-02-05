@@ -14,7 +14,6 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   product_size.init({
-    product_size_id: DataTypes.INTEGER,
     product_id: DataTypes.INTEGER,
     size_name: DataTypes.STRING
   }, {

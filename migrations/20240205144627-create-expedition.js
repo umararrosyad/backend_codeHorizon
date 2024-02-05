@@ -9,9 +9,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      expedition_id: {
-        type: Sequelize.INTEGER
-      },
       expedition_name: {
         type: Sequelize.INTEGER
       },

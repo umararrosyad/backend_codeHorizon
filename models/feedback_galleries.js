@@ -14,7 +14,6 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   feedback_galleries.init({
-    feedback_gallery_id: DataTypes.INTEGER,
     feedback_id: DataTypes.INTEGER,
     photo_url: DataTypes.STRING
   }, {

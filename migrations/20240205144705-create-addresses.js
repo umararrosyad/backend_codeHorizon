@@ -12,9 +12,6 @@ module.exports = {
       user_id: {
         type: Sequelize.INTEGER
       },
-      addresses_id: {
-        type: Sequelize.INTEGER
-      },
       address: {
         type: Sequelize.STRING
       },

@@ -9,9 +9,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      cart_id: {
-        type: Sequelize.INTEGER
-      },
       product_variant_id: {
         type: Sequelize.INTEGER
       },

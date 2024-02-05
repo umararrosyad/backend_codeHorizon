@@ -9,9 +9,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      product_size_id: {
-        type: Sequelize.INTEGER
-      },
       product_id: {
         type: Sequelize.INTEGER
       },

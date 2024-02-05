@@ -14,7 +14,6 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   transaction_details.init({
-    transaction_detail_id: DataTypes.INTEGER,
     transaction_id: DataTypes.INTEGER,
     product_variant_id: DataTypes.INTEGER,
     price: DataTypes.INTEGER,

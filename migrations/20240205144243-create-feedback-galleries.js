@@ -9,9 +9,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      feedback_gallery_id: {
-        type: Sequelize.INTEGER
-      },
       feedback_id: {
         type: Sequelize.INTEGER
       },
