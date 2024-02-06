@@ -14,10 +14,10 @@ class CategoryController {
     try {
       const { id } = req.params;
 
-      const movie = await Movie.findByPk(id);
-      if (!movie) throw { name: "notFound" };
+      const category = await categories.findByPk(id);
+      if (!category) throw { name: "notFound" };
 
-      res.status(200).json(movie);
+      res.status(200).json(category);
     } catch (err) {
       next(err);
     }
@@ -25,9 +25,9 @@ class CategoryController {
 
   static async create(req, res, next) {
     try {
-      const { name, category } = req.body;
-      const newMovie = await Movie.create({ name, category });
-      res.status(201).json(newMovie);
+      const { category_name, photo_url } = req.body;
+      const newCategory = await categories.create({ category_name, photo_url });
+      res.status(201).json(newCategory);
     } catch (error) {
       next(error);
     }
@@ -36,12 +36,12 @@ class CategoryController {
   static async update(req, res, next) {
     try {
       const { id } = req.params;
-      const { name, category } = req.body;
-      const updateMovie = await Movie.update(
-        { name, category },
+      const { category_name, photo_url } = req.body;
+      const updateCategory = await categories.update(
+        { category_name, photo_url },
         { where: { id } }
       );
-      res.status(200).json(updateMovie);
+      res.status(200).json({ message: "Category updated successfully" });
     } catch (error) {
       next(error);
     }
@@ -50,8 +50,8 @@ class CategoryController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
-      await Movie.destroy({ where: { id } });
-      res.status(200).json({ message: "Movie deleted successfully" });
+      await categories.destroy({ where: { id } });
+      res.status(200).json({ message: "Category deleted successfully" });
     } catch (error) {
       next(error);
     }

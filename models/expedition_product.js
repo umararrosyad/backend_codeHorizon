@@ -13,12 +13,12 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  expedition_produk.init({
+  expedition_product.init({
     product_id: DataTypes.INTEGER,
     expedition_id: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'expedition_product',
   });
-  return expedition_produk;
+  return expedition_product;
 };
