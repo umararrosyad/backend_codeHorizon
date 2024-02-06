@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       expedition_name: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       photo_url: {
         type: Sequelize.STRING
