@@ -1,9 +1,9 @@
 {
   "development": {
     "username": "postgres",
-    "password": "12345",
+    "password": "localhost",
     "database": "e-commerce",
-    "host": "127.0.0.1",
+    "host": "localhost",
     "dialect": "postgres"
   },
   "test": {
