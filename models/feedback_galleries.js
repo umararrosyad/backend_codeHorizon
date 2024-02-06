@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+      feedback_galleries.belongsTo(models.feedbacks, { foreignKey: "feedback_id" });
       // define association here
     }
   }
