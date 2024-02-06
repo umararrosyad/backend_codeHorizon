@@ -1,9 +1,13 @@
 const express = require('express')
-const rou = express.Router()
+const router = express.Router()
+const categoryRouter = require('./category')
 const productRouter = require('./product')
-// const movieRouter = require('./movies')
+
+router.get("/", (req, res) => {
+    res.send("Halo, dunia!");
+});
+router.use('/categories', categoryRouter)
+router.use('/product', productRouter)
 
 
-rou.use('/product', productRouter)
-// rou.use('/movie', movieRouter)
-module.exports = rou
+module.exports = router;
