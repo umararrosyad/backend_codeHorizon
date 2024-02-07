@@ -3,7 +3,7 @@ const { products, categories, product_galleries, product_size, product_type, exp
 class ProductController {
   static async getAll(req, res, next) {
     try {
-      const Movie = await products.findAll({
+      let Product = await products.findAll({
         include: [
           categories,
           product_galleries,
@@ -19,13 +19,101 @@ class ProductController {
           }
         ]
       });
-      const movies1 = inputRating(Movie, getAllRatings(Movie));
-      const movies2 = inputPrice(movies1, getPrice(Movie));
+      Product = inputRating(Product, getAllRatings(Product));
+      Product = inputPrice(Product, getPrice(Product));
 
-      res.status(200).json(movies2);
+      res.status(200).json(Product);
     } catch (error) {
       console.log(error);
     }
+  }
+
+  static async getOne(req, res, next) {
+    try {
+      const { id } = req.params;
+      const Product = await products.findByPk(id, {
+        include: [
+          categories,
+          product_galleries,
+          product_size,
+          product_type,
+          {
+            model: product_variant,
+            include: [feedbacks, product_size, product_type]
+          },
+          {
+            model: expedition_products,
+            include: [expedition]
+          }
+        ]
+      });
+      Product = inputRating(Product, getAllRatings(Movie));
+      Product = inputPrice(Product, getPrice(Movie));
+
+      res.status(200).json(Product);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  static async create(req, res, next) {
+    try {
+      const { name, category_id, description } = req.body;
+      if (!name || !category_id || !description) {
+        throw { name: "nullParameter" };
+      }
+
+      const newProduct = await products.create({
+        name,
+        category_id,
+        description,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      if (newProduct) {
+        newProduct.dataValues.status = "success";
+      }
+      res.status(201).json(newProduct);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async update(req, res, next) {
+    const { id } = req.params;
+    const { name, category_id, description } = req.body;
+    if (!name || !category_id || !description) {
+      throw { name: "nullParameter" };
+    }
+    const newProduct = await products.update(
+      {
+        name,
+        category_id,
+        description
+      },
+      { where: { id } }
+    );
+    let status;
+    if (newProduct[0] == "1") {
+      status = "success";
+    } else {
+      status = "error";
+    }
+    res.status(201).json({ status });
+  }
+  catch(error) {
+    next(error);
+  }
+
+  static async delete(req, res, next) {
+    const { id } = req.params;
+    await products.destroy({ where: { id } });
+    let status;
+      status = "success";
+    res.status(201).json({ status });
+  }
+  catch(error) {
+    next(error);
   }
 }
 
@@ -37,8 +125,11 @@ function calculateAverage(arr) {
 function inputPrice(arr, price) {
   for (let i = 0; i < arr.length; i++) {
     if (price[i]) {
-      arr[i].dataValues.min_price = Math.min(...price[i]);
-      arr[i].dataValues.max_price = Math.max(...price[i]);
+      arr[i].dataValues.min_price = `${Math.min(...price[i])}`;
+      arr[i].dataValues.max_price = `${Math.min(...price[i])}`;
+    } else {
+      arr[i].dataValues.min_price = "0";
+      arr[i].dataValues.max_price = "0";
     }
   }
   return arr;
@@ -46,8 +137,7 @@ function inputPrice(arr, price) {
 
 function inputRating(arr, rating) {
   for (let i = 0; i < arr.length; i++) {
-    // Menambahkan properti rating ke setiap objek movie
-    arr[i].dataValues.rating_product = rating[i];
+    arr[i].dataValues.rating_product = `${rating[i]}`;
   }
   return arr;
 }
