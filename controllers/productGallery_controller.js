@@ -17,6 +17,9 @@ class ProductGalleryController {
       const { product_id, id } = req.params;
       console.log(product_id);
       let gallery = await product_galleries.findAll({ where: { product_id, id } });
+      if(!type){
+        throw { name: "notFound" };
+      }
       res.status(200).json(gallery);
     } catch (error) {
       next(error);

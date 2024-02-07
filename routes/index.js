@@ -4,6 +4,8 @@ const categoryRouter = require("./category");
 const productRouter = require("./product");
 const productGalleryRouter = require("./product_gallery");
 const productTypeRouter = require("./product_type");
+const productSizeRouter = require("./product_size");
+const productVariantRouter = require("./product_variant")
 const path = require("path");
 
 router.get("/", (req, res) => {
@@ -15,5 +17,7 @@ router.use("/categories", categoryRouter);
 router.use("/product", productRouter);
 router.use("/product", productGalleryRouter);
 router.use("/product", productTypeRouter);
+router.use("/product", productSizeRouter);
+router.use("/product", productVariantRouter);
 
 module.exports = router;

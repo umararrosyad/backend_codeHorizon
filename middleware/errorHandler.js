@@ -9,6 +9,8 @@ const errorHandler = (err,req,res, next)=>{
         res.status(400).json({message: 'Authorization header missing'})
     }else if(err.name === 'fileNotFound'){
         res.status(400).json({message: 'Tidak Ada File Yang Dikirimkan'})
+    }else if(err.name === 'DataExist'){
+        res.status(400).json({message: 'Pasangan product type dan product size sudah ada.'})
     }
 }
 

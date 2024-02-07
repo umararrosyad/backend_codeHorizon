@@ -24,7 +24,7 @@ class ProductController {
 
       res.status(200).json(Product);
     } catch (error) {
-      console.log(error);
+      next(error);
     }
   }
 
@@ -47,12 +47,16 @@ class ProductController {
           }
         ]
       });
+
+      if(!Product){
+        throw { name: "notFound" };
+      }
       Product = inputRating(Product, getAllRatings(Product));
       Product = inputPrice(Product, getPrice(Product));
 
       res.status(200).json(Product);
     } catch (error) {
-      console.log(error);
+      next(error);
     }
   }
 
