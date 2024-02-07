@@ -80,40 +80,43 @@ class ProductController {
   }
 
   static async update(req, res, next) {
-    const { id } = req.params;
-    const { name, category_id, description } = req.body;
-    if (!name || !category_id || !description) {
-      throw { name: "nullParameter" };
+    try {
+      const { id } = req.params;
+      const { name, category_id, description } = req.body;
+      if (!name || !category_id || !description) {
+        throw { name: "nullParameter" };
+      }
+      const newProduct = await products.update(
+        {
+          name,
+          category_id,
+          description
+        },
+        { where: { id } }
+      );
+      let status;
+      if (newProduct[0] == "1") {
+        status = "success";
+      } else {
+        status = "error";
+      }
+      res.status(201).json({ status });
+    } catch (error) {
+      next(error);
     }
-    const newProduct = await products.update(
-      {
-        name,
-        category_id,
-        description
-      },
-      { where: { id } }
-    );
-    let status;
-    if (newProduct[0] == "1") {
-      status = "success";
-    } else {
-      status = "error";
-    }
-    res.status(201).json({ status });
-  }
-  catch(error) {
-    next(error);
   }
 
   static async delete(req, res, next) {
-    const { id } = req.params;
-    await products.destroy({ where: { id } });
-    let status;
+    try{
+      const { id } = req.params;
+      await products.destroy({ where: { id } });
+      let status;
       status = "success";
-    res.status(201).json({ status });
-  }
-  catch(error) {
-    next(error);
+      res.status(201).json({ status });
+    }
+    catch(error) {
+      next(error);
+    }
   }
 }
 
