@@ -3,17 +3,17 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    relationProduct(queryInterface);
-    relationProductType(queryInterface);
-    relationProductSize(queryInterface);
-    relationAddress(queryInterface);
-    relationCarts(queryInterface);
-    relationExpeditionProduct(queryInterface);
-    relationFeedback(queryInterface);
-    relationProductGalleries(queryInterface);
-    relationProductVariant(queryInterface);
-    relationTransactionDetail(queryInterface)
-    relationTransaction(queryInterface)
+    await relationProduct(queryInterface);
+    await relationProductType(queryInterface);
+    await relationProductSize(queryInterface);
+    await relationAddress(queryInterface);
+    await relationCarts(queryInterface);
+    await relationExpeditionProduct(queryInterface);
+    await relationFeedback(queryInterface);
+    await relationProductGalleries(queryInterface);
+    await relationProductVariant(queryInterface);
+    await relationTransactionDetail(queryInterface)
+    await relationTransaction(queryInterface)
   },
 
   async down(queryInterface, Sequelize) {
@@ -157,6 +157,7 @@ async function relationFeedback(queryInterface) {
     onDelete: "CASCADE",
     onUpdate: "CASCADE"
   });
+
   await queryInterface.addConstraint("feedback_galleries", {
     fields: ["feedback_id"],
     type: "foreign key",
