@@ -31,7 +31,7 @@ class ProductController {
   static async getOne(req, res, next) {
     try {
       const { id } = req.params;
-      const Product = await products.findByPk(id, {
+      let Product = await products.findByPk(id, {
         include: [
           categories,
           product_galleries,
@@ -47,8 +47,8 @@ class ProductController {
           }
         ]
       });
-      Product = inputRating(Product, getAllRatings(Movie));
-      Product = inputPrice(Product, getPrice(Movie));
+      Product = inputRating(Product, getAllRatings(Product));
+      Product = inputPrice(Product, getPrice(Product));
 
       res.status(200).json(Product);
     } catch (error) {
