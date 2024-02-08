@@ -41,7 +41,18 @@ class CategoryController {
         { category_name, photo_url },
         { where: { id } }
       );
-      res.status(200).json({ message: "Category updated successfully" });
+
+      
+      if (updateCategory == "1") {
+        return res
+          .status(200)
+          .json({ message: "Category updated successfully" });
+      }
+        return res
+          .status(200)
+          .json({ message: "Category updated failed" });
+
+      
     } catch (error) {
       next(error);
     }
