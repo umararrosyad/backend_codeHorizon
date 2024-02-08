@@ -1,11 +1,15 @@
-const { users } = require("../models");
+const { users, addresses } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 class UserController {
   static async getAll(req, res, next) {
     try {
-      const user = await users.findAll();
+      const user = await users.findAll({
+        include: [
+          addresses,
+        ]
+      });
       res.status(200).json(user);
     } catch (error) {
       next(error);
@@ -16,7 +20,11 @@ class UserController {
     try {
       const { id } = req.params;
 
-      const user = await users.findByPk(id);
+      const user = await users.findByPk(id, {
+        include: [
+          addresses
+        ]
+      });
       if (!user) throw { name: "Item not found" };
 
       res.status(200).json(user);
