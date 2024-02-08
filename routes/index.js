@@ -6,6 +6,7 @@ const productGalleryRouter = require("./product_gallery");
 const productTypeRouter = require("./product_type");
 const productSizeRouter = require("./product_size");
 const productVariantRouter = require("./product_variant")
+const expeditionRouter = require("./expedition")
 const path = require("path");
 
 router.get("/", (req, res) => {
@@ -19,5 +20,6 @@ router.use("/product", productGalleryRouter);
 router.use("/product", productTypeRouter);
 router.use("/product", productSizeRouter);
 router.use("/product", productVariantRouter);
+router.use("/expedition", expeditionRouter);
 
 module.exports = router;
