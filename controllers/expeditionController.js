@@ -3,7 +3,7 @@ const { expedition } = require("../models");
 class ExpeditionController {
   static async getAll(req, res, next) {
     try {
-      const expe = await expedition.findAll();
+      const expe = await expedition.findAll({ attributes: { exclude: ["createdAt", "updatedAt"] } });
       res.status(200).json(expe);
     } catch (error) {
       next(error);
@@ -13,7 +13,7 @@ class ExpeditionController {
   static async getOne(req, res, next) {
     try {
       const { id } = req.params;
-      const expe = await expedition.findAll({ where: { id } });
+      const expe = await expedition.findByPk(id ,{  attributes: { exclude: ["createdAt", "updatedAt"] } });
       if (!expe[0]) {
         throw { name: "notFound" };
       }

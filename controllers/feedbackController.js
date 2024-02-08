@@ -1,16 +1,20 @@
-const { expedition_products, expedition } = require("../models");
+const { feedbacks, product_variant, product_size, product_type } = require("../models");
 
-class ExpeditionProductController {
+class feedbacksController {
   static async getAll(req, res, next) {
     try {
       const { product_id } = req.params;
-      let expe = await expedition_products.findAll({
+      let expe = await feedbacks.findAll({
         attributes: { exclude: ["createdAt", "updatedAt"] },
-        where: { product_id },
         include: [
           {
-            model: expedition,
-            attributes: { exclude: ["createdAt", "updatedAt"] }
+            model: product_variant,
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+            where: { product_id },
+            include: [
+              { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
+              { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } }
+            ]
           }
         ]
       });
@@ -26,13 +30,17 @@ class ExpeditionProductController {
   static async getOne(req, res, next) {
     try {
       const { product_id, id } = req.params;
-      let expe = await expedition_products.findByPk(id, {
+      let expe = await feedbacks.findByPk(id, {
         attributes: { exclude: ["createdAt", "updatedAt"] },
-        where: { product_id },
         include: [
           {
-            model: expedition,
-            attributes: { exclude: ["createdAt", "updatedAt"] }
+            model: product_variant,
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+            where: { product_id },
+            include: [
+              { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
+              { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } }
+            ]
           }
         ]
       });
@@ -50,7 +58,7 @@ class ExpeditionProductController {
       const { expedition_id } = req.body;
       const { product_id } = req.params;
 
-      const data = await expedition_products.create({ product_id, expedition_id });
+      const data = await feedbacks.create({ product_id, expedition_id });
       res.status(200).json(data);
     } catch (error) {
       next(error);
@@ -62,7 +70,7 @@ class ExpeditionProductController {
       const { expedition_id } = req.body;
       const { product_id, id } = req.params;
       console.log(expedition_id);
-      const data = await expedition_products.update({ expedition_id }, { where: { product_id, id } });
+      const data = await feedbacks.update({ expedition_id }, { where: { product_id, id } });
       const status = data[0] == 1 ? "success" : "error";
       res.status(200).json({ status });
     } catch (error) {
@@ -73,7 +81,7 @@ class ExpeditionProductController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
-      await expedition_products.destroy({ where: { id } });
+      await feedbacks.destroy({ where: { id } });
       let status = "success";
       res.status(201).json({ status });
     } catch (error) {
@@ -82,4 +90,4 @@ class ExpeditionProductController {
   }
 }
 
-module.exports = ExpeditionProductController;
+module.exports = feedbacksController;

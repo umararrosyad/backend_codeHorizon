@@ -4,7 +4,7 @@ class ProductTypeController {
   static async getAll(req, res, next) {
     try {
       const { product_id } = req.params;
-      let type = await product_type.findAll({ where: { product_id } });
+      let type = await product_type.findAll({ where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
       res.status(200).json(type);
     } catch (error) {
       next(error);
@@ -14,7 +14,7 @@ class ProductTypeController {
   static async getOne(req, res, next) {
     try {
       const { product_id, id } = req.params;
-      let type = await product_type.findAll({ where: { product_id, id } });
+      let type = await product_type.findByPk(id, { where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
       res.status(200).json(type);
     } catch (error) {
       next(error);

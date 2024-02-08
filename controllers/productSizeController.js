@@ -4,7 +4,7 @@ class ProductSizeController {
   static async getAll(req, res, next) {
     try {
       const { product_id } = req.params;
-      let type = await product_size.findAll({ where: { product_id } });
+      let type = await product_size.findAll({ where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
       res.status(200).json(type);
     } catch (error) {
       next(error);
@@ -14,8 +14,8 @@ class ProductSizeController {
   static async getOne(req, res, next) {
     try {
       const { product_id, id } = req.params;
-      let type = await product_size.findAll({ where: { product_id, id } });
-      if(!type){
+      let type = await product_size.findByPk(id, { where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if (!type) {
         throw { name: "notFound" };
       }
       res.status(200).json(type);
@@ -41,7 +41,7 @@ class ProductSizeController {
       const { size_name } = req.body;
       const { product_id, id } = req.params;
 
-      const data = await product_size.update({size_name }, { where: { product_id, id } });
+      const data = await product_size.update({ size_name }, { where: { product_id, id } });
       const status = data[0] == 1 ? "success" : "error";
       res.status(200).json({ status });
     } catch (error) {
