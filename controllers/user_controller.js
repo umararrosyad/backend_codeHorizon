@@ -111,7 +111,7 @@ class UserController {
       if (deletedUserCount > 0) {
         // Hapus alamat yang terkait dengan pengguna yang dihapus
         await addresses.destroy({
-          where: { userId: id },
+          where: { user_id: id },
         });
 
         res
