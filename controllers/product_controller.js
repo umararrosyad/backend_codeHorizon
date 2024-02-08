@@ -4,18 +4,25 @@ class ProductController {
   static async getAll(req, res, next) {
     try {
       let Product = await products.findAll({
+        attributes: { exclude: ["createdAt", "updatedAt"] },
         include: [
-          categories,
-          product_galleries,
-          product_size,
-          product_type,
+          { model: categories,  attributes: { exclude: ["createdAt", "updatedAt"] }},
+          { model: product_galleries, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: product_size,  attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: product_type,  attributes: { exclude: ["createdAt", "updatedAt"] } },
           {
             model: product_variant,
-            include: [feedbacks, product_size, product_type]
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+            include: [
+              { model: feedbacks,  attributes: { exclude: ["createdAt", "updatedAt"] }},
+              { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
+              { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } }
+            ]
           },
           {
             model: expedition_products,
-            include: [expedition]
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+            include: [{model:expedition, attributes: { exclude: ["createdAt", "updatedAt"] }}]
           }
         ]
       });
@@ -32,23 +39,30 @@ class ProductController {
     try {
       const { id } = req.params;
       let Product = await products.findByPk(id, {
+        attributes: ["id", "category_id", "name", "description"],
         include: [
-          categories,
-          product_galleries,
-          product_size,
-          product_type,
+          { model: categories, attributes: ["id", "category_name"] },
+          { model: product_galleries, attributes: ["id", "photo_url"] },
+          { model: product_size, attributes: ["id", "size_name"] },
+          { model: product_type, attributes: ["id", "type_name", "photo_url"] },
           {
             model: product_variant,
-            include: [feedbacks, product_size, product_type]
+            attributes: ["id", "weight", "price", "stock"],
+            include: [
+              { model: feedbacks, attributes: ["id", "rating"] },
+              { model: product_size, attributes: ["id", "size_name"] },
+              { model: product_type, attributes: ["id", "type_name", "photo_url"] }
+            ]
           },
           {
             model: expedition_products,
-            include: [expedition]
+            attributes: ["id", "expedition_id"],
+            include: [{model:expedition, attributes: ["id", "expedition_name", "photo_url"]}]
           }
         ]
       });
 
-      if(!Product){
+      if (!Product) {
         throw { name: "notFound" };
       }
       Product = inputRating(Product, getAllRatings(Product));
@@ -111,14 +125,13 @@ class ProductController {
   }
 
   static async delete(req, res, next) {
-    try{
+    try {
       const { id } = req.params;
       await products.destroy({ where: { id } });
       let status;
       status = "success";
       res.status(201).json({ status });
-    }
-    catch(error) {
+    } catch (error) {
       next(error);
     }
   }

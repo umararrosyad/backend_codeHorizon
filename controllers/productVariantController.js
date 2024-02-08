@@ -5,7 +5,11 @@ class ProductVariantController {
     try {
       const { product_id } = req.params;
       const variant = await product_variant.findAll({
-        include: [product_size, product_type],
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        include: [
+          { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } }
+        ],
         where: { product_id }
       });
       if (!variant[0]) {
@@ -20,11 +24,15 @@ class ProductVariantController {
   static async getOne(req, res, next) {
     try {
       const { product_id, id } = req.params;
-      const variant = await product_variant.findAll({
-        include: [product_size, product_type],
-        where: { product_id, id }
+      const variant = await product_variant.findByPk(id,{
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        include: [
+          { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } }
+        ],
+        where: { product_id }
       });
-      if (!variant[0]) {
+      if (!variant) {
         throw { name: "notFound" };
       }
       res.status(200).json(variant);

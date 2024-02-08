@@ -4,12 +4,11 @@ function auth(req, res, next){
     const authHeader = req.header('Authorization')
     if(!authHeader){
         throw ({name : 'missAuth'})
-        
     }
 
     const token = authHeader.split(' ')[1];
     try {
-        const decodedToken = jwt.verify(token, 'secret');
+        const decodedToken = jwt.verify(token, 'codehorizon');
         req.user = decodedToken;
         next();
       } catch (error) {
