@@ -7,6 +7,7 @@ module.exports = {
     database: 'e-commerce',
     host: 'localhost',
     dialect: 'postgres',
+    logging : false
   },
   test: {
     username: process.env.DB_USERNAME,
@@ -14,6 +15,7 @@ module.exports = {
     database: 'e-commerce_test',
     host: '127.0.0.1',
     dialect: 'postgres',
+    logging : false
   },
   production: {
     username: process.env.DB_USERNAME,

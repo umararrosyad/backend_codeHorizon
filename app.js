@@ -12,6 +12,10 @@ app.use(errorHandler)
 
 
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+if(process.env.NODE_ENV != "test"){
+  app.listen(port, () => {
+      console.log("berjalan di port "+ port)
+  })
+}
+
+module.exports = app

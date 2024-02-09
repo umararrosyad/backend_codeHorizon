@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const ExpeditionProductController = require("../controllers/expeditionProductController");
-// const auth = require('../middleware/auth')
+const auth = require('../middleware/auth')
 
 router.get("/:product_id/expedition/", ExpeditionProductController.getAll);
 router.get("/:product_id/expedition/:id", ExpeditionProductController.getOne);
