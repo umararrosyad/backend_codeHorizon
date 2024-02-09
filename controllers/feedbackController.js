@@ -1,4 +1,4 @@
-const { feedbacks, product_variant, product_size, product_type } = require("../models");
+const { feedbacks, product_variant, product_size, product_type, feedback_galleries } = require("../models");
 
 class feedbacksController {
   static async getAll(req, res, next) {
@@ -15,7 +15,8 @@ class feedbacksController {
               { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
               { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } }
             ]
-          }
+          },
+          { model: feedback_galleries, attributes: { exclude: ["createdAt", "updatedAt"] } }
         ]
       });
       if (!expe[0]) {
@@ -41,7 +42,8 @@ class feedbacksController {
               { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
               { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } }
             ]
-          }
+          },
+          { model: feedback_galleries, attributes: { exclude: ["createdAt", "updatedAt"] } }
         ]
       });
       if (!expe) {
@@ -55,11 +57,23 @@ class feedbacksController {
 
   static async create(req, res, next) {
     try {
-      const { expedition_id } = req.body;
+      const { user_id, product_variant_id, feedback, rating } = req.body;
       const { product_id } = req.params;
 
-      const data = await feedbacks.create({ product_id, expedition_id });
-      res.status(200).json(data);
+      const data = await feedbacks.create({ user_id, product_variant_id, feedback, rating });
+
+      const feedback_id = data.dataValues.id;
+
+      for (const file of req.files) {
+        const { filename } = file;
+        const photo_url = `${req.protocol}://${req.get("host")}/static/${filename}`;
+        await feedback_galleries.create({ feedback_id, photo_url });
+      }
+      
+      const data1 = await feedbacks.findByPk(feedback_id, {
+        include: [feedback_galleries]
+      });
+      res.status(200).json(data1);
     } catch (error) {
       next(error);
     }
@@ -82,6 +96,17 @@ class feedbacksController {
     try {
       const { id } = req.params;
       await feedbacks.destroy({ where: { id } });
+      let status = "success";
+      res.status(201).json({ status });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async deleteGallery(req, res, next) {
+    try {
+      const { id } = req.params;
+      await feedback_galleries.destroy({ where: { id } });
       let status = "success";
       res.status(201).json({ status });
     } catch (error) {
