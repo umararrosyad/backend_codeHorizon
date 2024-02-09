@@ -49,11 +49,11 @@ class TransactionController {
       if (!req.file) {
         throw { name: "fileNotFound" };
       }
-      
+
       const { filename } = req.file;
       const payment_photo_url = `${req.protocol}://${req.get("host")}/static/${filename}`;
-      const data = await transactions.update({ payment_photo_url }, { where: { id } });
-      console.log(data)
+      const data = await transactions.update({ payment_photo_url }, { where: { user_id, id } });
+      console.log(data);
       const status = data[0] == 1 ? "success" : "error";
       res.status(200).json({ status });
     } catch (error) {
