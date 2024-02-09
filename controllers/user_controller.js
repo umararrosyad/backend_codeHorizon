@@ -103,25 +103,24 @@ class UserController {
       const { id } = req.params;
 
       // Hapus pengguna berdasarkan ID
-      const deletedUserCount = await users.destroy({
-        where: { id },
-      });
+      await users.destroy({where: { id }});
+      res.status(200).json({ message: "User deleted successfully" });
 
       // Jika pengguna berhasil dihapus
-      if (deletedUserCount > 0) {
-        // Hapus alamat yang terkait dengan pengguna yang dihapus
-        await addresses.destroy({
-          where: { user_id: id },
-        });
+      // if (deletedUserCount > 0) {
+      //   // Hapus alamat yang terkait dengan pengguna yang dihapus
+      //   await addresses.destroy({
+      //     where: { user_id: id },
+      //   });
 
-        res
-          .status(200)
-          .json({
-            message: "User and associated addresses deleted successfully.",
-          });
-      } else {
-        throw { name: "Item not found" };
-      }
+      //   res
+      //     .status(200)
+      //     .json({
+      //       message: "User and associated addresses deleted successfully.",
+      //     });
+      // } else {
+      //   throw { name: "Item not found" };
+      // }
     } catch (err) {
       next(err);
     }
