@@ -11,6 +11,8 @@ const expeditionRouter = require("./expedition");
 const expeditionProductRouter = require("./expedition_product");
 const feedbackRouter = require("./feedbacks");
 const transactionRouter = require("./transaction");
+const cartRouter = require("./cart");
+const addressRouter = require("./addresses")
 const path = require("path");
 
 router.get("/", (req, res) => {
@@ -28,6 +30,9 @@ router.use("/product", productVariantRouter);
 router.use("/product", expeditionProductRouter);
 router.use("/product", feedbackRouter);
 router.use("/users", transactionRouter);
+router.use("/users", cartRouter);
+router.use("/users", addressRouter);
 router.use("/expedition", expeditionRouter);
+
 
 module.exports = router;
