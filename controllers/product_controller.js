@@ -26,6 +26,9 @@ class ProductController {
           }
         ]
       });
+      if(!Product[0]){
+        throw {name:"notFound"}
+      }
       Product = inputRating(Product, getAllRatings(Product));
       Product = inputPrice(Product, getPrice(Product));
 
