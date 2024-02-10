@@ -45,7 +45,7 @@ class TransactionController {
         include: [{ model: transaction_details, attributes: { exclude: ["createdAt", "updatedAt"] } }],
         attributes: { exclude: ["createdAt", "updatedAt"] }
       });
-      res.status(200).json(data1);
+      res.status(201).json(data1);
     } catch (error) {
       next(error);
     }
@@ -61,7 +61,6 @@ class TransactionController {
       const { filename } = req.file;
       const payment_photo_url = `${req.protocol}://${req.get("host")}/static/${filename}`;
       const data = await transactions.update({ payment_photo_url }, { where: { user_id, id } });
-      console.log(data);
       const status = data[0] == 1 ? "success" : "error";
       res.status(200).json({ status });
     } catch (error) {
@@ -75,7 +74,7 @@ class TransactionController {
       await transactions.destroy({ where: { id } });
       let status;
       status = "success";
-      res.status(201).json({ status });
+      res.status(200).json({ status });
     } catch (error) {
       next(error);
     }

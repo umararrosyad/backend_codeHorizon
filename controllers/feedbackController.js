@@ -59,7 +59,7 @@ class feedbacksController {
     try {
       const { user_id, product_variant_id, feedback, rating } = req.body;
       const { product_id } = req.params;
-      if (!product_variant_id || user_id || feedback || rating || user_id) {
+      if (!product_variant_id || !user_id || !feedback || !rating ) {
         throw { name: "nullParameter" };
       }
 
@@ -76,7 +76,7 @@ class feedbacksController {
       const data1 = await feedbacks.findByPk(feedback_id, {
         include: [feedback_galleries]
       });
-      res.status(200).json(data1);
+      res.status(201).json(data1);
     } catch (error) {
       next(error);
     }
@@ -89,7 +89,6 @@ class feedbacksController {
       if ( !feedback || !rating ){
         throw { name: "nullParameter" };
       }
-      console.log(expedition_id);
       const data = await feedbacks.update({ feedback, rating }, { where: {  id } });
       const status = data[0] == 1 ? "success" : "error";
       res.status(200).json({ status });
@@ -103,7 +102,7 @@ class feedbacksController {
       const { id } = req.params;
       await feedbacks.destroy({ where: { id } });
       let status = "success";
-      res.status(201).json({ status });
+      res.status(200).json({ status });
     } catch (error) {
       next(error);
     }
@@ -114,7 +113,7 @@ class feedbacksController {
       const { id } = req.params;
       await feedback_galleries.destroy({ where: { id } });
       let status = "success";
-      res.status(201).json({ status });
+      res.status(200).json({ status });
     } catch (error) {
       next(error);
     }

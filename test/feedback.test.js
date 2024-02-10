@@ -4,9 +4,9 @@ const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxN
 const path = require("path");
 const image = path.join(__dirname, "../public/test_image/logo.jpg");
 
-test("get all data product type", (done) => {
+test("get all data product feedback", (done) => {
   request(app)
-    .get("/product/1/type/")
+    .get("/product/1/feedback/")
     .expect(200)
     .then((response) => {
       const product = response.body;
@@ -19,9 +19,9 @@ test("get all data product type", (done) => {
     .catch(done);
 });
 
-test("get one data product type", (done) => {
+test("get one data product feedback", (done) => {
   request(app)
-    .get("/product/1/type/1")
+    .get("/product/1/feedback/1")
     .expect(200)
     .then((response) => {
       const todo = response.body;
@@ -33,7 +33,7 @@ test("get one data product type", (done) => {
 
 test("message data not found", (done) => {
   request(app)
-    .get("/product/1/type/0")
+    .get("/product/1/feedback/0")
     .expect(404)
     .then((response) => {
       const { message } = response.body;
@@ -42,43 +42,48 @@ test("message data not found", (done) => {
     })
     .catch(done);
 });
-let product_type_id;
+let url;
 test("create data product type", (done) => {
   request(app)
-    .post("/product/1/type/")
+    .post("/product/1/feedback/")
     .set("Authorization", token)
     .set("Content-Type", "multipart/form-data")
-    .field("type_name", "name")
+    .field("user_id", "1")
+    .field("product_variant_id", "1")
+    .field("rating", "5")
+    .field("feedback", "name")
     .attach("image", image)
-    .expect(200)
+    .expect(201)
     .then((response) => {
       const product = response.body;
       expect(product).toBeTruthy();
-      product_type_id = "/product/1/type/" + product.id;
+      url = "/product/1/feedback/" + product.id;
       done();
     })
     .catch(done);
 });
 
-test("edit data product type", (done) => {
-  request(app)
-    .put(product_type_id)
-    .set("Authorization", token)
-    .set("Content-Type", "multipart/form-data")
-    .field("type_name", "name1")
-    .attach("image", image)
-    .expect(200)
-    .then((response) => {
-      const {status} = response.body;
-      expect(status).toBe("success");
-      done();
-    })
-    .catch(done);
-});
+test("edit data product feedback", (done) => {
+    request(app)
+      .put("/product/1/feedback/1")
+      .set("Authorization", token)
+      .send({
+            "rating" : "5",
+            "feedback" : "bagus" 
+        })
+
+      .expect(200)
+      .then((response) => {
+        const {status} = response.body;
+        expect(status).toBe("success");
+        done();
+      })
+      .catch(done);
+  });
 
 test("incorrect input message", (done) => {
   request(app)
-    .post("/product/1/type/")
+    .post("/product/1/feedback/")
     .set("Authorization", token)
     .expect(400)
     .then((response) => {
@@ -89,23 +94,9 @@ test("incorrect input message", (done) => {
     .catch(done);
 });
 
-test("incorrect input file message", (done) => {
-  request(app)
-    .post("/product/1/type/")
-    .set("Authorization", token)
-    .field("type_name", "name")
-    .expect(400)
-    .then((response) => {
-      const { message } = response.body;
-      expect(message).toBe("Tidak Ada File Yang Dikirimkan");
-      done();
-    })
-    .catch(done);
-});
-
 test("missing header", (done) => {
   request(app)
-    .post("/product/1/type/")
+    .post("/product/1/feedback/")
     .expect(400)
     .then((response) => {
       const { message } = response.body;
@@ -115,10 +106,9 @@ test("missing header", (done) => {
     .catch(done);
 });
 
-
 test("should successfully delete data product", (done) => {
   request(app)
-    .delete(product_type_id)
+    .delete(url)
     .set("Authorization", token)
     .expect(200)
     .then((response) => {

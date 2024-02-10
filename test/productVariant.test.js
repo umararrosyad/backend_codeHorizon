@@ -1,9 +1,9 @@
 const app = require("../app");
 const request = require("supertest");
-const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzA3NDgyNTc5fQ.ysGhtGlGnNWotkUahNz-vOSuOy20gSlXW4-0rzszimM"
-test("get all data product", (done) => {
+const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzA3NDgyNTc5fQ.ysGhtGlGnNWotkUahNz-vOSuOy20gSlXW4-0rzszimM";
+test("get all data product variant", (done) => {
   request(app)
-    .get("/product/")
+    .get("/product/1/variant/")
     .expect(200)
     .then((response) => {
       const product = response.body;
@@ -16,9 +16,9 @@ test("get all data product", (done) => {
     .catch(done);
 });
 
-test("get one data product", (done) => {
+test("get one data product variant", (done) => {
   request(app)
-    .get("/product/1")
+    .get("/product/1/variant/1")
     .expect(200)
     .then((response) => {
       const todo = response.body;
@@ -30,7 +30,7 @@ test("get one data product", (done) => {
 
 test("message data not found", (done) => {
   request(app)
-    .get("/product/0")
+    .get("/product/1/variant/0")
     .expect(404)
     .then((response) => {
       const { message } = response.body;
@@ -39,47 +39,49 @@ test("message data not found", (done) => {
     })
     .catch(done);
 });
-let product_id;
+let product_variant_id;
 test("create data product", (done) => {
   request(app)
-    .post("/product/")
+    .post("/product/1/variant/")
     .set("Authorization", token)
     .send({
-      name: "nama",
-      category_id: 1,
-      description: "ini descripsi"
+      product_type_id: "2",
+      product_size_id: "2",
+      weight: "2333",
+      price: "1",
+      stock : "1"
     })
     .expect(201)
     .then((response) => {
       const product = response.body;
       expect(product).toBeTruthy();
-      product_id = "/product/" + product.id;
+      product_variant_id = "/product/1/variant/" + product.id;
       done();
     })
     .catch(done);
 });
 
 test("edit data product", (done) => {
-  request(app)
-    .put(product_id)
-    .set("Authorization", token)
-    .send({
-      name: "nama",
-      category_id: 1,
-      description: "ini descripsi"
-    })
-    .expect(201)
-    .then((response) => {
-      const {status} = response.body;
-      expect(status).toBe("success");
-      done();
-    })
-    .catch(done);
-});
+    request(app)
+      .put(product_variant_id)
+      .set("Authorization", token)
+      .send({
+        weight: "2333",
+        price: "1",
+        stock : "1"
+      })
+      .expect(200)
+      .then((response) => {
+        const {status} = response.body;
+        expect(status).toBe("success");
+        done();
+      })
+      .catch(done);
+  });
 
 test("incorrect input message", (done)=>{
     request(app)
-        .post('/product/')
+        .post('/product/1/variant/')
         .set("Authorization", token)
         .expect(400)
             .then(response=>{
@@ -92,7 +94,7 @@ test("incorrect input message", (done)=>{
 
 test("missing header", (done)=>{
     request(app)
-        .post('/product/')
+        .post('/product/1/variant/')
         .expect(400)
             .then(response=>{
                 const {message} = response.body;
@@ -103,9 +105,9 @@ test("missing header", (done)=>{
 })
 
 
-test("should successfully delete data product", (done)=>{
+test("should successfully delete data product variant", (done)=>{
     request(app)
-        .delete(product_id)
+        .delete(product_variant_id)
         .set("Authorization", token)
         .expect(200)
             .then(response=>{

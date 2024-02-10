@@ -48,6 +48,7 @@ class ProductVariantController {
       if (!product_type_id || !product_size_id || !weight || !price || !stock) {
         throw { name: "nullParameter" };
       }
+
       const existingVariant = await product_variant.findOne({
         where: {
           product_type_id: product_type_id,
@@ -60,7 +61,7 @@ class ProductVariantController {
       }
 
       const data = await product_variant.create({ product_id, product_type_id, stock, product_size_id, weight, price });
-      res.status(200).json(data);
+      res.status(201).json(data);
     } catch (error) {
       next(error);
     }
@@ -68,24 +69,15 @@ class ProductVariantController {
 
   static async update(req, res, next) {
     try {
-      const { product_type_id, product_size_id, weight, price, stock } = req.body;
-      const { product_id } = req.params;
-      if (!product_type_id || !product_size_id || !weight || !price || !stock) {
+      const { weight, price, stock } = req.body;
+      const { id } = req.params;
+      if ( !weight || !price || !stock) {
         throw { name: "nullParameter" };
       }
-      const existingVariant = await product_variant.findOne({
-        where: {
-          product_type_id: product_type_id,
-          product_size_id: product_size_id
-        }
-      });
 
-      if (existingVariant) {
-        throw { name: "DataExist" };
-      }
-
-      const data = await product_variant.update({ product_id, product_type_id, stock, product_size_id, weight, price });
-      res.status(200).json(data);
+      const data = await product_variant.update({ stock, weight, price }, {where : {id}});
+      const status = data[0] == 1 ? "success" : "error";
+      res.status(200).json({status});
     } catch (error) {
       next(error);
     }
@@ -96,7 +88,7 @@ class ProductVariantController {
       const { id } = req.params;
       await product_variant.destroy({ where: { id } });
       let status = "success";
-      res.status(201).json({ status });
+      res.status(200).json({ status });
     } catch (error) {
       next(error);
     }

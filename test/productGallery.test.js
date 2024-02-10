@@ -4,15 +4,15 @@ const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxN
 const path = require("path");
 const image = path.join(__dirname, "../public/test_image/logo.jpg");
 
-test("get all data product type", (done) => {
+test("get all data product gallery", (done) => {
   request(app)
-    .get("/product/1/type/")
+    .get("/product/1/gallery/")
     .expect(200)
     .then((response) => {
-      const product = response.body;
-      expect(Array.isArray(product)).toBeTruthy();
-      product.forEach((product) => {
-        expect(product).toBeTruthy();
+      const gallery = response.body;
+      expect(Array.isArray(gallery)).toBeTruthy();
+      gallery.forEach((gallery) => {
+        expect(gallery).toBeTruthy();
       });
       done();
     })
@@ -21,7 +21,7 @@ test("get all data product type", (done) => {
 
 test("get one data product type", (done) => {
   request(app)
-    .get("/product/1/type/1")
+    .get("/product/1/gallery/1")
     .expect(200)
     .then((response) => {
       const todo = response.body;
@@ -33,7 +33,7 @@ test("get one data product type", (done) => {
 
 test("message data not found", (done) => {
   request(app)
-    .get("/product/1/type/0")
+    .get("/product/1/gallery/0")
     .expect(404)
     .then((response) => {
       const { message } = response.body;
@@ -42,35 +42,18 @@ test("message data not found", (done) => {
     })
     .catch(done);
 });
-let product_type_id;
-test("create data product type", (done) => {
+let product_gallery_id;
+test("create data product gallery", (done) => {
   request(app)
-    .post("/product/1/type/")
+    .post("/product/1/gallery/")
     .set("Authorization", token)
     .set("Content-Type", "multipart/form-data")
-    .field("type_name", "name")
     .attach("image", image)
     .expect(200)
     .then((response) => {
       const product = response.body;
       expect(product).toBeTruthy();
-      product_type_id = "/product/1/type/" + product.id;
-      done();
-    })
-    .catch(done);
-});
-
-test("edit data product type", (done) => {
-  request(app)
-    .put(product_type_id)
-    .set("Authorization", token)
-    .set("Content-Type", "multipart/form-data")
-    .field("type_name", "name1")
-    .attach("image", image)
-    .expect(200)
-    .then((response) => {
-      const {status} = response.body;
-      expect(status).toBe("success");
+      product_gallery_id = "/product/1/gallery/" + product.id;
       done();
     })
     .catch(done);
@@ -78,22 +61,8 @@ test("edit data product type", (done) => {
 
 test("incorrect input message", (done) => {
   request(app)
-    .post("/product/1/type/")
+    .post("/product/1/gallery/")
     .set("Authorization", token)
-    .expect(400)
-    .then((response) => {
-      const { message } = response.body;
-      expect(message).toBe("Parameter Tidak Boleh Kosong");
-      done();
-    })
-    .catch(done);
-});
-
-test("incorrect input file message", (done) => {
-  request(app)
-    .post("/product/1/type/")
-    .set("Authorization", token)
-    .field("type_name", "name")
     .expect(400)
     .then((response) => {
       const { message } = response.body;
@@ -105,7 +74,7 @@ test("incorrect input file message", (done) => {
 
 test("missing header", (done) => {
   request(app)
-    .post("/product/1/type/")
+    .post("/product/1/gallery/")
     .expect(400)
     .then((response) => {
       const { message } = response.body;
@@ -118,7 +87,7 @@ test("missing header", (done) => {
 
 test("should successfully delete data product", (done) => {
   request(app)
-    .delete(product_type_id)
+    .delete(product_gallery_id)
     .set("Authorization", token)
     .expect(200)
     .then((response) => {

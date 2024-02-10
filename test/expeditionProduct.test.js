@@ -1,9 +1,9 @@
 const app = require("../app");
 const request = require("supertest");
 const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzA3NDgyNTc5fQ.ysGhtGlGnNWotkUahNz-vOSuOy20gSlXW4-0rzszimM"
-test("get all data product", (done) => {
+test("get all data expedition product", (done) => {
   request(app)
-    .get("/product/")
+    .get("/product/1/expedition/")
     .expect(200)
     .then((response) => {
       const product = response.body;
@@ -16,9 +16,9 @@ test("get all data product", (done) => {
     .catch(done);
 });
 
-test("get one data product", (done) => {
+test("get one data expedition product ", (done) => {
   request(app)
-    .get("/product/1")
+    .get("/product/1/expedition/1")
     .expect(200)
     .then((response) => {
       const todo = response.body;
@@ -30,7 +30,7 @@ test("get one data product", (done) => {
 
 test("message data not found", (done) => {
   request(app)
-    .get("/product/0")
+    .get("/product/1/expedition/0")
     .expect(404)
     .then((response) => {
       const { message } = response.body;
@@ -39,39 +39,19 @@ test("message data not found", (done) => {
     })
     .catch(done);
 });
-let product_id;
+let url;
 test("create data product", (done) => {
   request(app)
-    .post("/product/")
+    .post("/product/1/expedition/")
     .set("Authorization", token)
     .send({
-      name: "nama",
-      category_id: 1,
-      description: "ini descripsi"
+      expedition_id: "1"
     })
     .expect(201)
     .then((response) => {
       const product = response.body;
       expect(product).toBeTruthy();
-      product_id = "/product/" + product.id;
-      done();
-    })
-    .catch(done);
-});
-
-test("edit data product", (done) => {
-  request(app)
-    .put(product_id)
-    .set("Authorization", token)
-    .send({
-      name: "nama",
-      category_id: 1,
-      description: "ini descripsi"
-    })
-    .expect(201)
-    .then((response) => {
-      const {status} = response.body;
-      expect(status).toBe("success");
+      url = "/product/1/expedition/" + product.id;
       done();
     })
     .catch(done);
@@ -79,7 +59,7 @@ test("edit data product", (done) => {
 
 test("incorrect input message", (done)=>{
     request(app)
-        .post('/product/')
+        .post('/product/1/expedition/')
         .set("Authorization", token)
         .expect(400)
             .then(response=>{
@@ -92,7 +72,7 @@ test("incorrect input message", (done)=>{
 
 test("missing header", (done)=>{
     request(app)
-        .post('/product/')
+        .post('/product/1/expedition/')
         .expect(400)
             .then(response=>{
                 const {message} = response.body;
@@ -102,14 +82,13 @@ test("missing header", (done)=>{
             .catch(done)
 })
 
-
-test("should successfully delete data product", (done)=>{
+test("should successfully delete data expedition product", (done)=>{
     request(app)
-        .delete(product_id)
+        .delete(url)
         .set("Authorization", token)
         .expect(200)
             .then(response=>{
-                const {status} = response.body;
+                const {status}= response.body;
                 expect(status).toBe("success")
                 done()
             })

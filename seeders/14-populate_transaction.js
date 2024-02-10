@@ -3,35 +3,21 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // await queryInterface.bulkInsert(
-    //   "feedback_galleries",
-    //   [
-    //     {
-    //       user_id: "1",
-    //       address_id: "https://placehold.co/600x400",
-    //       product_price: "https://placehold.co/600x400",
-    //       shipping_price: "https://placehold.co/600x400",
-    //       total_price: "https://placehold.co/600x400",
-    //       payment_photo_url: "https://placehold.co/600x400",
-    //       transaction_status: "https://placehold.co/600x400",
-    //       createdAt: new Date(),
-    //       updatedAt: new Date()
-    //     },
-    //     {
-    //       feedback_id: "1",
-    //       photo_url: "https://placehold.co/600x400",
-    //       createdAt: new Date(),
-    //       updatedAt: new Date()
-    //     },
-    //     {
-    //       feedback_id: "1",
-    //       photo_url: "https://placehold.co/600x400",
-    //       createdAt: new Date(),
-    //       updatedAt: new Date()
-    //     }
-    //   ],
-    //   {}
-    // );
+    await queryInterface.bulkInsert(
+      "transactions",
+      [
+        {
+          user_id : "1",
+          addresses_id: "1",
+          product_price: "20000",
+          shipping_price: "10000",
+          total_price: "30000",
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+      ],
+      {}
+    );
   },
 
   async down(queryInterface, Sequelize) {

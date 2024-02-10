@@ -57,6 +57,22 @@ test("create data product", (done) => {
     .catch(done);
 });
 
+test("edit data product", (done) => {
+  request(app)
+    .put(product_size_id)
+    .set("Authorization", token)
+    .send({
+      size_name: "nama1"
+    })
+    .expect(200)
+    .then((response) => {
+      const {status} = response.body;
+      expect(status).toBe("success");
+      done();
+    })
+    .catch(done);
+});
+
 test("incorrect input message", (done)=>{
     request(app)
         .post('/product/1/size/')
@@ -82,7 +98,6 @@ test("missing header", (done)=>{
             .catch(done)
 })
 
-// // // hanya bisa dipake sekali jadi saya comment saja
 
 test("should successfully delete data product", (done)=>{
     request(app)

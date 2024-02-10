@@ -53,7 +53,7 @@ class ExpeditionProductController {
         throw { name: "nullParameter" };
       }
       const data = await expedition_products.create({ product_id, expedition_id });
-      res.status(200).json(data);
+      res.status(201).json(data);
     } catch (error) {
       next(error);
     }
@@ -80,7 +80,7 @@ class ExpeditionProductController {
       const { id } = req.params;
       await expedition_products.destroy({ where: { id } });
       let status = "success";
-      res.status(201).json({ status });
+      res.status(200).json({ status });
     } catch (error) {
       next(error);
     }

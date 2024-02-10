@@ -2,16 +2,29 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    /**
-     * Add seed commands here.
-     *
-     * Example:
-     * await queryInterface.bulkInsert('People', [{
-     *   name: 'John Doe',
-     *   isBetaMember: false
-     * }], {});
-    */
+  async up(queryInterface, Sequelize) {
+    await queryInterface.bulkInsert(
+      "transaction_details",
+      [
+        {
+          transaction_id : "1",
+          product_variant_id : "1",
+          price : "10000",
+          qty : "1",
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          transaction_id : "1",
+          product_variant_id : "2",
+          price : "10000",
+          qty : "1",
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      ],
+      {}
+    );
   },
 
   async down (queryInterface, Sequelize) {

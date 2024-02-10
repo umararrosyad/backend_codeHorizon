@@ -1,12 +1,12 @@
 const app = require("../app");
 const request = require("supertest");
-const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzA3NDgyNTc5fQ.ysGhtGlGnNWotkUahNz-vOSuOy20gSlXW4-0rzszimM";
 const path = require("path");
 const image = path.join(__dirname, "../public/test_image/logo.jpg");
-
-test("get all data product type", (done) => {
+const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzA3NDgyNTc5fQ.ysGhtGlGnNWotkUahNz-vOSuOy20gSlXW4-0rzszimM";
+test("get all data transaction", (done) => {
   request(app)
-    .get("/product/1/type/")
+    .get("/users/1/transaction/")
+    .set("Authorization", token)
     .expect(200)
     .then((response) => {
       const product = response.body;
@@ -19,9 +19,10 @@ test("get all data product type", (done) => {
     .catch(done);
 });
 
-test("get one data product type", (done) => {
+test("get one data transaction", (done) => {
   request(app)
-    .get("/product/1/type/1")
+    .get("/users/1/transaction/1")
+    .set("Authorization", token)
     .expect(200)
     .then((response) => {
       const todo = response.body;
@@ -33,7 +34,8 @@ test("get one data product type", (done) => {
 
 test("message data not found", (done) => {
   request(app)
-    .get("/product/1/type/0")
+    .get("/users/1/transaction/0")
+    .set("Authorization", token)
     .expect(404)
     .then((response) => {
       const { message } = response.body;
@@ -42,35 +44,37 @@ test("message data not found", (done) => {
     })
     .catch(done);
 });
-let product_type_id;
-test("create data product type", (done) => {
+
+let transaction;
+let upload;
+test("create data transaction", (done) => {
   request(app)
-    .post("/product/1/type/")
+    .post("/users/1/transaction")
     .set("Authorization", token)
-    .set("Content-Type", "multipart/form-data")
-    .field("type_name", "name")
-    .attach("image", image)
-    .expect(200)
+    .send({
+      addresses_id: "1",
+      product_price: "20000",
+      shipping_price: "10000",
+      total_price: "30000",
+      transaction_detail: [
+        {
+          product_variant_id: "1",
+          price: "10000",
+          qty: "1"
+        },
+        {
+          product_variant_id: "2",
+          price: "10000",
+          qty: "1"
+        }
+      ]
+    })
+    .expect(201)
     .then((response) => {
       const product = response.body;
       expect(product).toBeTruthy();
-      product_type_id = "/product/1/type/" + product.id;
-      done();
-    })
-    .catch(done);
-});
-
-test("edit data product type", (done) => {
-  request(app)
-    .put(product_type_id)
-    .set("Authorization", token)
-    .set("Content-Type", "multipart/form-data")
-    .field("type_name", "name1")
-    .attach("image", image)
-    .expect(200)
-    .then((response) => {
-      const {status} = response.body;
-      expect(status).toBe("success");
+      transaction = "/users/1/transaction/" + product.id;
+      upload = "/users/1/transaction/" + product.id+"/upload";
       done();
     })
     .catch(done);
@@ -78,7 +82,7 @@ test("edit data product type", (done) => {
 
 test("incorrect input message", (done) => {
   request(app)
-    .post("/product/1/type/")
+    .post("/users/1/transaction")
     .set("Authorization", token)
     .expect(400)
     .then((response) => {
@@ -89,23 +93,9 @@ test("incorrect input message", (done) => {
     .catch(done);
 });
 
-test("incorrect input file message", (done) => {
-  request(app)
-    .post("/product/1/type/")
-    .set("Authorization", token)
-    .field("type_name", "name")
-    .expect(400)
-    .then((response) => {
-      const { message } = response.body;
-      expect(message).toBe("Tidak Ada File Yang Dikirimkan");
-      done();
-    })
-    .catch(done);
-});
-
 test("missing header", (done) => {
   request(app)
-    .post("/product/1/type/")
+    .post("/users/1/transaction")
     .expect(400)
     .then((response) => {
       const { message } = response.body;
@@ -115,10 +105,24 @@ test("missing header", (done) => {
     .catch(done);
 });
 
+test("upload payment photo", (done) => {
+    request(app)
+      .put(upload)
+      .set("Authorization", token)
+      .set("Content-Type", "multipart/form-data")
+      .attach("image", image)
+      .expect(200)
+      .then((response) => {
+        const {status} = response.body;
+        expect(status).toBe("success");
+        done();
+      })
+      .catch(done);
+  });
 
-test("should successfully delete data product", (done) => {
+test("should successfully delete data transaction", (done) => {
   request(app)
-    .delete(product_type_id)
+    .delete(transaction)
     .set("Authorization", token)
     .expect(200)
     .then((response) => {

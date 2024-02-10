@@ -32,14 +32,13 @@ class ExpeditionController {
       if (!expedition_name) {
         throw { name: "nullParameter" };
       }
-      console.log(expedition_name);
       if (!req.file) {
         throw { name: "fileNotFound" };
       }
       const { filename } = req.file;
       const photo_url = `${req.protocol}://${req.get("host")}/static/${filename}`;
       const data = await expedition.create({ photo_url, expedition_name });
-      res.status(200).json(data);
+      res.status(201).json(data);
     } catch (error) {
       next(error);
     }
@@ -70,7 +69,7 @@ class ExpeditionController {
       const { id } = req.params;
       await expedition.destroy({ where: { id } });
       const status = "success";
-      res.status(201).json({ status });
+      res.status(200).json({ status });
     } catch (error) {
       next(error);
     }

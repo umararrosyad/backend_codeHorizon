@@ -4,7 +4,6 @@ class ProductGalleryController {
   static async getAll(req, res, next) {
     try {
       const { product_id } = req.params;
-      console.log(product_id);
       let gallery = await product_galleries.findAll({ where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
       if(!gallery[0]){
         throw {name:"notFound"}
@@ -18,7 +17,6 @@ class ProductGalleryController {
   static async getOne(req, res, next) {
     try {
       const { product_id, id } = req.params;
-      console.log(product_id);
       let gallery = await product_galleries.findByPk(id, { where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
       if (!gallery) {
         throw { name: "notFound" };
@@ -50,7 +48,7 @@ class ProductGalleryController {
       await product_galleries.destroy({ where: { id } });
       let status;
       status = "success";
-      res.status(201).json({ status });
+      res.status(200).json({ status });
     } catch (error) {
       next(error);
     }
