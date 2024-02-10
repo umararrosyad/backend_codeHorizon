@@ -4,6 +4,9 @@ class ExpeditionController {
   static async getAll(req, res, next) {
     try {
       const expe = await expedition.findAll({ attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if (!expe[0]) {
+        throw { name: "notFound" };
+      }
       res.status(200).json(expe);
     } catch (error) {
       next(error);
@@ -14,7 +17,7 @@ class ExpeditionController {
     try {
       const { id } = req.params;
       const expe = await expedition.findByPk(id ,{  attributes: { exclude: ["createdAt", "updatedAt"] } });
-      if (!expe[0]) {
+      if (!expe) {
         throw { name: "notFound" };
       }
       res.status(200).json(expe);
@@ -26,6 +29,9 @@ class ExpeditionController {
   static async create(req, res, next) {
     try {
       const { expedition_name } = req.body;
+      if (!expedition_name) {
+        throw { name: "nullParameter" };
+      }
       console.log(expedition_name);
       if (!req.file) {
         throw { name: "fileNotFound" };
@@ -42,6 +48,9 @@ class ExpeditionController {
   static async update(req, res, next) {
     try {
       const { expedition_name } = req.body;
+      if (!expedition_name) {
+        throw { name: "nullParameter" };
+      }
       const { id } = req.params;
       if (!req.file) {
         throw { name: "fileNotFound" };

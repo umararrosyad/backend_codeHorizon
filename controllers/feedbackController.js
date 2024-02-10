@@ -59,6 +59,9 @@ class feedbacksController {
     try {
       const { user_id, product_variant_id, feedback, rating } = req.body;
       const { product_id } = req.params;
+      if (!product_variant_id || user_id || feedback || rating || user_id) {
+        throw { name: "nullParameter" };
+      }
 
       const data = await feedbacks.create({ user_id, product_variant_id, feedback, rating });
 
@@ -81,10 +84,13 @@ class feedbacksController {
 
   static async update(req, res, next) {
     try {
-      const { expedition_id } = req.body;
-      const { product_id, id } = req.params;
+      const { feedback, rating } = req.body;
+      const { id } = req.params;
+      if ( !feedback || !rating ){
+        throw { name: "nullParameter" };
+      }
       console.log(expedition_id);
-      const data = await feedbacks.update({ expedition_id }, { where: { product_id, id } });
+      const data = await feedbacks.update({ feedback, rating }, { where: {  id } });
       const status = data[0] == 1 ? "success" : "error";
       res.status(200).json({ status });
     } catch (error) {

@@ -6,6 +6,9 @@ class ProductGalleryController {
       const { product_id } = req.params;
       console.log(product_id);
       let gallery = await product_galleries.findAll({ where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if(!gallery[0]){
+        throw {name:"notFound"}
+      }
       res.status(200).json(gallery);
     } catch (error) {
       next(error);
@@ -17,7 +20,7 @@ class ProductGalleryController {
       const { product_id, id } = req.params;
       console.log(product_id);
       let gallery = await product_galleries.findByPk(id, { where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
-      if (!type) {
+      if (!gallery) {
         throw { name: "notFound" };
       }
       res.status(200).json(gallery);

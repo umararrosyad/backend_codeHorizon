@@ -49,7 +49,9 @@ class ExpeditionProductController {
     try {
       const { expedition_id } = req.body;
       const { product_id } = req.params;
-
+      if (!expedition_id) {
+        throw { name: "nullParameter" };
+      }
       const data = await expedition_products.create({ product_id, expedition_id });
       res.status(200).json(data);
     } catch (error) {
@@ -61,6 +63,9 @@ class ExpeditionProductController {
     try {
       const { expedition_id } = req.body;
       const { product_id, id } = req.params;
+      if (!expedition_id) {
+        throw { name: "nullParameter" };
+      }
       console.log(expedition_id);
       const data = await expedition_products.update({ expedition_id }, { where: { product_id, id } });
       const status = data[0] == 1 ? "success" : "error";

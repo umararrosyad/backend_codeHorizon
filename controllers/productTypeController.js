@@ -5,6 +5,9 @@ class ProductTypeController {
     try {
       const { product_id } = req.params;
       let type = await product_type.findAll({ where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if(!type[0]){
+        throw { name: "notFound" };
+      }
       res.status(200).json(type);
     } catch (error) {
       next(error);
@@ -15,6 +18,9 @@ class ProductTypeController {
     try {
       const { product_id, id } = req.params;
       let type = await product_type.findByPk(id, { where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if(!type){
+        throw { name: "notFound" };
+      }
       res.status(200).json(type);
     } catch (error) {
       next(error);
@@ -25,7 +31,9 @@ class ProductTypeController {
     try {
       const { type_name } = req.body;
       const { product_id } = req.params;
-
+      if(!type_name){
+        throw { name: "nullParameter" };
+      }
       console.log(type_name);
       if (!req.file) {
         throw { name: "fileNotFound" };
@@ -42,6 +50,9 @@ class ProductTypeController {
   static async update(req, res, next) {
     try {
       const { type_name } = req.body;
+      if(!type_name){
+        throw { name: "nullParameter" };
+      }
       const { product_id, id } = req.params;
       if (!req.file) {
         throw { name: "fileNotFound" };

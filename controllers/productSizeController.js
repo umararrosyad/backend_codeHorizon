@@ -5,6 +5,9 @@ class ProductSizeController {
     try {
       const { product_id } = req.params;
       let type = await product_size.findAll({ where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if (!type[0]) {
+        throw { name: "notFound" };
+      }
       res.status(200).json(type);
     } catch (error) {
       next(error);
@@ -28,6 +31,9 @@ class ProductSizeController {
     try {
       const { size_name } = req.body;
       const { product_id } = req.params;
+      if(!size_name){
+        throw { name: "nullParameter" };
+      }
 
       const data = await product_size.create({ product_id, size_name });
       res.status(200).json(data);
@@ -40,7 +46,9 @@ class ProductSizeController {
     try {
       const { size_name } = req.body;
       const { product_id, id } = req.params;
-
+      if(!size_name){
+        throw { name: "nullParameter" };
+      }
       const data = await product_size.update({ size_name }, { where: { product_id, id } });
       const status = data[0] == 1 ? "success" : "error";
       res.status(200).json({ status });

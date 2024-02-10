@@ -24,7 +24,7 @@ class ProductVariantController {
   static async getOne(req, res, next) {
     try {
       const { product_id, id } = req.params;
-      const variant = await product_variant.findByPk(id,{
+      const variant = await product_variant.findByPk(id, {
         attributes: { exclude: ["createdAt", "updatedAt"] },
         include: [
           { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
@@ -45,7 +45,9 @@ class ProductVariantController {
     try {
       const { product_type_id, product_size_id, weight, price, stock } = req.body;
       const { product_id } = req.params;
-
+      if (!product_type_id || !product_size_id || !weight || !price || !stock) {
+        throw { name: "nullParameter" };
+      }
       const existingVariant = await product_variant.findOne({
         where: {
           product_type_id: product_type_id,
@@ -68,7 +70,9 @@ class ProductVariantController {
     try {
       const { product_type_id, product_size_id, weight, price, stock } = req.body;
       const { product_id } = req.params;
-
+      if (!product_type_id || !product_size_id || !weight || !price || !stock) {
+        throw { name: "nullParameter" };
+      }
       const existingVariant = await product_variant.findOne({
         where: {
           product_type_id: product_type_id,

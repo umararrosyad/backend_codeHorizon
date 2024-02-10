@@ -4,8 +4,11 @@ class TransactionController {
   static async getAll(req, res, next) {
     try {
       const { user_id } = req.params;
-      let type = await transactions.findAll({ where: { user_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
-      res.status(200).json(type);
+      const trans = await transactions.findAll({ where: { user_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if (!trans[0]) {
+        throw { name: "notFound" };
+      }
+      res.status(200).json(trans);
     } catch (error) {
       next(error);
     }
@@ -14,8 +17,11 @@ class TransactionController {
   static async getOne(req, res, next) {
     try {
       const { user_id, id } = req.params;
-      let type = await transactions.findByPk(id, { where: { user_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
-      res.status(200).json(type);
+      const trans = await transactions.findByPk(id, { where: { user_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if (!trans) {
+        throw { name: "notFound" };
+      }
+      res.status(200).json(trans);
     } catch (error) {
       next(error);
     }
@@ -25,7 +31,9 @@ class TransactionController {
     try {
       const { addresses_id, product_price, shipping_price, total_price, transaction_detail } = req.body;
       const { user_id } = req.params;
-
+      if (!addresses_id || !product_price || !shipping_price || !total_price || !transaction_detail) {
+        throw { name: "nullParameter" };
+      }
       const data = await transactions.create({ user_id, addresses_id, product_price, shipping_price, total_price, transaction_status: "belum bayar" });
       const transaction_id = data.dataValues.id;
       for (const detail of transaction_detail) {
