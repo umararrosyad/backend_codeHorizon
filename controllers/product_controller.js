@@ -6,15 +6,15 @@ class ProductController {
       let Product = await products.findAll({
         attributes: { exclude: ["createdAt", "updatedAt"] },
         include: [
-          { model: categories,  attributes: { exclude: ["createdAt", "updatedAt"] }},
+          { model: categories, attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: product_galleries, attributes: { exclude: ["createdAt", "updatedAt"] } },
-          { model: product_size,  attributes: { exclude: ["createdAt", "updatedAt"] } },
-          { model: product_type,  attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } },
           {
             model: product_variant,
             attributes: { exclude: ["createdAt", "updatedAt"] },
             include: [
-              { model: feedbacks,  attributes: { exclude: ["createdAt", "updatedAt"] }},
+              { model: feedbacks, attributes: { exclude: ["createdAt", "updatedAt"] } },
               { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
               { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } }
             ]
@@ -22,12 +22,12 @@ class ProductController {
           {
             model: expedition_products,
             attributes: { exclude: ["createdAt", "updatedAt"] },
-            include: [{model:expedition, attributes: { exclude: ["createdAt", "updatedAt"] }}]
+            include: [{ model: expedition, attributes: { exclude: ["createdAt", "updatedAt"] } }]
           }
         ]
       });
-      if(!Product[0]){
-        throw {name:"notFound"}
+      if (!Product[0]) {
+        throw { name: "notFound" };
       }
       Product = inputRating(Product, getAllRatings(Product));
       Product = inputPrice(Product, getPrice(Product));
@@ -60,7 +60,7 @@ class ProductController {
           {
             model: expedition_products,
             attributes: ["id", "expedition_id"],
-            include: [{model:expedition, attributes: ["id", "expedition_name", "photo_url"]}]
+            include: [{ model: expedition, attributes: ["id", "expedition_name", "photo_url"] }]
           }
         ]
       });
@@ -133,7 +133,7 @@ class ProductController {
       await products.destroy({ where: { id } });
       let status;
       status = "success";
-      res.status(201).json({ status });
+      res.status(200).json({ status });
     } catch (error) {
       next(error);
     }

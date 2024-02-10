@@ -34,7 +34,6 @@ class ProductTypeController {
       if(!type_name){
         throw { name: "nullParameter" };
       }
-      console.log(type_name);
       if (!req.file) {
         throw { name: "fileNotFound" };
       }
@@ -73,7 +72,7 @@ class ProductTypeController {
       await product_type.destroy({ where: { id } });
       let status;
       status = "success";
-      res.status(201).json({ status });
+      res.status(200).json({ status });
     } catch (error) {
       next(error);
     }

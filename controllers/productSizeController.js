@@ -36,7 +36,7 @@ class ProductSizeController {
       }
 
       const data = await product_size.create({ product_id, size_name });
-      res.status(200).json(data);
+      res.status(201).json(data);
     } catch (error) {
       next(error);
     }
@@ -62,7 +62,7 @@ class ProductSizeController {
       const { id } = req.params;
       await product_size.destroy({ where: { id } });
       let status = "success";
-      res.status(201).json({ status });
+      res.status(200).json({ status });
     } catch (error) {
       next(error);
     }

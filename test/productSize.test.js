@@ -1,9 +1,9 @@
 const app = require("../app");
 const request = require("supertest");
 const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzA3NDgyNTc5fQ.ysGhtGlGnNWotkUahNz-vOSuOy20gSlXW4-0rzszimM"
-test("get all data product", (done) => {
+test("get all data product size", (done) => {
   request(app)
-    .get("/product/")
+    .get("/product/1/size/")
     .expect(200)
     .then((response) => {
       const product = response.body;
@@ -16,9 +16,9 @@ test("get all data product", (done) => {
     .catch(done);
 });
 
-test("get one data product", (done) => {
+test("get one data product size", (done) => {
   request(app)
-    .get("/product/1")
+    .get("/product/1/size/1")
     .expect(200)
     .then((response) => {
       const todo = response.body;
@@ -30,7 +30,7 @@ test("get one data product", (done) => {
 
 test("message data not found", (done) => {
   request(app)
-    .get("/product/0")
+    .get("/product/1/size/0")
     .expect(404)
     .then((response) => {
       const { message } = response.body;
@@ -39,21 +39,19 @@ test("message data not found", (done) => {
     })
     .catch(done);
 });
-let product_id;
+let product_size_id;
 test("create data product", (done) => {
   request(app)
-    .post("/product/")
+    .post("/product/1/size/")
     .set("Authorization", token)
     .send({
-      name: "nama",
-      category_id: 1,
-      description: "ini descripsi"
+      size_name: "nama"
     })
     .expect(201)
     .then((response) => {
       const product = response.body;
       expect(product).toBeTruthy();
-      product_id = "/product/" + product.id;
+      product_size_id = "/product/1/size/" + product.id;
       done();
     })
     .catch(done);
@@ -61,7 +59,7 @@ test("create data product", (done) => {
 
 test("incorrect input message", (done)=>{
     request(app)
-        .post('/product/')
+        .post('/product/1/size/')
         .set("Authorization", token)
         .expect(400)
             .then(response=>{
@@ -74,7 +72,7 @@ test("incorrect input message", (done)=>{
 
 test("missing header", (done)=>{
     request(app)
-        .post('/product/')
+        .post('/product/1/size/')
         .expect(400)
             .then(response=>{
                 const {message} = response.body;
@@ -84,11 +82,11 @@ test("missing header", (done)=>{
             .catch(done)
 })
 
-// // hanya bisa dipake sekali jadi saya comment saja
+// // // hanya bisa dipake sekali jadi saya comment saja
 
 test("should successfully delete data product", (done)=>{
     request(app)
-        .delete(product_id)
+        .delete(product_size_id)
         .set("Authorization", token)
         .expect(200)
             .then(response=>{
