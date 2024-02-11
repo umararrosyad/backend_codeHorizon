@@ -1,6 +1,7 @@
 const app = require("../app");
 const request = require("supertest");
-const token ="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzA3NDgyNTc5fQ.ysGhtGlGnNWotkUahNz-vOSuOy20gSlXW4-0rzszimM";
+const token =
+  "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzA3NDgyNTc5fQ.ysGhtGlGnNWotkUahNz-vOSuOy20gSlXW4-0rzszimM";
 const path = require("path");
 const image = path.join(__dirname, "../public/test_image/logo.jpg");
 
@@ -60,7 +61,7 @@ test("create data product expedition", (done) => {
     .catch(done);
 });
 
-test("edit data product expedition", (done) => {
+test("edit data category", (done) => {
   request(app)
     .put(categories)
     .set("Authorization", token)
@@ -115,7 +116,7 @@ test("missing header", (done) => {
     .catch(done);
 });
 
-test("should successfully delete data expedition", (done) => {
+test("should successfully delete data category", (done) => {
   request(app)
     .delete(categories)
     .set("Authorization", token)
