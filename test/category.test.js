@@ -1,7 +1,6 @@
 const app = require("../app");
 const request = require("supertest");
-const token =
-  "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzA3NDgyNTc5fQ.ysGhtGlGnNWotkUahNz-vOSuOy20gSlXW4-0rzszimM";
+const token ="Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzA3NDgyNTc5fQ.ysGhtGlGnNWotkUahNz-vOSuOy20gSlXW4-0rzszimM";
 const path = require("path");
 const image = path.join(__dirname, "../public/test_image/logo.jpg");
 
@@ -44,7 +43,7 @@ test("message data not found", (done) => {
     .catch(done);
 });
 let categories;
-test("create data product expedition", (done) => {
+test("create data category", (done) => {
   request(app)
     .post("/categories/")
     .set("Authorization", token)
@@ -55,7 +54,7 @@ test("create data product expedition", (done) => {
     .then((response) => {
       const category = response.body;
       expect(category).toBeTruthy();
-      categories = "/expedition/" + category.id;
+      categories = "/categories/" + category.id;
       done();
     })
     .catch(done);
@@ -94,7 +93,7 @@ test("incorrect input file message", (done) => {
   request(app)
     .post("/categories/")
     .set("Authorization", token)
-    .field("expedition_name", "name")
+    .field("category_name", "name")
     .expect(400)
     .then((response) => {
       const { message } = response.body;
