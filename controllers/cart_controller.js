@@ -33,13 +33,14 @@ class CartController {
   static async create(req, res, next) {
     try {
       const { qty } = req.body;
-      const { user_id, id } = req.params;
+      const { user_id } = req.params;
 
       const newCart = await carts.create({
         user_id: user_id,
-        product_variant,
-        qty
+        product_variant_id:null,
+        qty,
       });
+      
       res.status(200).json(newCart);
     } catch (error) {
       next(error);
@@ -48,25 +49,24 @@ class CartController {
 
   static async update(req, res, next) {
     try {
-      const { id } = req.params;
-      const { name, email, username, password, phone_number, photo_url } =
-        req.body;
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const updateUser = await users.update(
+      const { user_id, id } = req.params;
+      const { address, province_id, city_id, kode_pos } = req.body;
+      const updateAddress = await addresses.update(
         {
-          name,
-          email,
-          username,
-          password: hashedPassword,
-          phone_number,
-          photo_url,
+          user_id: user_id,
+          address,
+          province_id,
+          city_id,
+          kode_pos,
         },
-        { where: { id } }
+        { where: { id, user_id } }
       );
-      if (updateUser == "1") {
-        return res.status(200).json({ message: "User updated successfully" });
+      if (updateAddress == "1") {
+        return res
+          .status(200)
+          .json({ message: "User Address updated successfully" });
       }
-      return res.status(200).json({ message: "User updated failed" });
+      return res.status(200).json({ message: "User Address updated failed" });
     } catch (error) {
       next(error);
     }
@@ -74,11 +74,11 @@ class CartController {
 
   static async delete(req, res, next) {
     try {
-      const { id } = req.params;
+      const { user_id, id } = req.params;
 
       // Hapus pengguna berdasarkan ID
-      await users.destroy({ where: { id } });
-      res.status(200).json({ message: "User deleted successfully" });
+      await addresses.destroy({ where: { user_id, id } });
+      res.status(200).json({ message: "User Address deleted successfully" });
     } catch (err) {
       next(err);
     }
