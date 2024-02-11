@@ -25,7 +25,15 @@ class CategoryController {
 
   static async create(req, res, next) {
     try {
-      const { category_name, photo_url } = req.body;
+      const { category_name} = req.body;
+      if (!category_name) {
+        throw { name: "nullParameter" };
+      }
+      if (!req.file) {
+        throw { name: "fileNotFound" };
+      }
+      const { filename } = req.file;
+      const photo_url = `${req.protocol}://${req.get("host")}/static/${filename}`;
       const newCategory = await categories.create({ category_name, photo_url });
       res.status(201).json(newCategory);
     } catch (error) {
@@ -36,21 +44,22 @@ class CategoryController {
   static async update(req, res, next) {
     try {
       const { id } = req.params;
-      const { category_name, photo_url } = req.body;
+      const { category_name} = req.body;
+      if (!category_name) {
+        throw { name: "nullParameter" };
+      }
+      if (!req.file) {
+        throw { name: "fileNotFound" };
+      }
+      const { filename } = req.file;
+      const photo_url = `${req.protocol}://${req.get("host")}/static/${filename}`;
       const updateCategory = await categories.update(
         { category_name, photo_url },
         { where: { id } }
       );
-
       
-      if (updateCategory == "1") {
-        return res
-          .status(200)
-          .json({ message: "Category updated successfully" });
-      }
-        return res
-          .status(200)
-          .json({ message: "Category updated failed" });
+      const status = updateCategory[0] == 1 ? "success" : "error";
+      res.status(200).json({ status });
 
       
     } catch (error) {
