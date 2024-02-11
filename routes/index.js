@@ -13,6 +13,7 @@ const feedbackRouter = require("./feedbacks");
 const transactionRouter = require("./transaction");
 const cartRouter = require("./cart");
 const addressRouter = require("./addresses")
+const transactionAdminController = require("./transactionAdmin")
 const path = require("path");
 
 router.get("/", (req, res) => {
@@ -32,6 +33,7 @@ router.use("/product", feedbackRouter);
 router.use("/users", transactionRouter);
 router.use("/users", cartRouter);
 router.use("/users", addressRouter);
+router.use("/transaction", transactionAdminController);
 router.use("/expedition", expeditionRouter);
 
 

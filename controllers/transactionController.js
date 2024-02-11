@@ -4,7 +4,7 @@ class TransactionController {
   static async getAll(req, res, next) {
     try {
       const { user_id } = req.params;
-      const trans = await transactions.findAll({ where: { user_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      const trans = await transactions.findAll({ where: { user_id }, attributes: { exclude: ["createdAt", "updatedAt"] }, include: [ {model :transaction_details , attributes: { exclude: ["createdAt", "updatedAt"] } }] });
       if (!trans[0]) {
         throw { name: "notFound" };
       }
@@ -17,7 +17,7 @@ class TransactionController {
   static async getOne(req, res, next) {
     try {
       const { user_id, id } = req.params;
-      const trans = await transactions.findByPk(id, { where: { user_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      const trans = await transactions.findByPk(id, { where: { user_id }, attributes: { exclude: ["createdAt", "updatedAt"] }, include: [ {model :transaction_details , attributes: { exclude: ["createdAt", "updatedAt"] } }] });
       if (!trans) {
         throw { name: "notFound" };
       }

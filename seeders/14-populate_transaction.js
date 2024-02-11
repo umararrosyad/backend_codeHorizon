@@ -12,6 +12,7 @@ module.exports = {
           product_price: "20000",
           shipping_price: "10000",
           total_price: "30000",
+          transaction_status: "belum bayar",
           createdAt: new Date(),
           updatedAt: new Date()
         },
