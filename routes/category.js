@@ -7,8 +7,8 @@ const auth = require("../middleware/auth")
 
 router.get("/", CategoryController.getAll);
 router.get("/:id", CategoryController.getOne);
-router.post("/", auth, multer.single("image"), CategoryController.create);
-router.put("/:id", auth, multer.single("image"), CategoryController.update);
+router.post("/", multer.single("image"), auth, CategoryController.create);
+router.put("/:id", multer.single("image"), auth, CategoryController.update);
 router.delete("/:id",auth, CategoryController.delete);
 
 module.exports = router;

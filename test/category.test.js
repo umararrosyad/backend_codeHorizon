@@ -42,6 +42,7 @@ test("message data not found", (done) => {
     })
     .catch(done);
 });
+
 let categories;
 test("create data category", (done) => {
   request(app)
@@ -121,8 +122,8 @@ test("should successfully delete data category", (done) => {
     .set("Authorization", token)
     .expect(200)
     .then((response) => {
-      const { status } = response.body;
-      expect(status).toBe("success");
+      const { message } = response.body;
+      expect(message).toBe("Category deleted successfully");
       done();
     })
     .catch(done);
