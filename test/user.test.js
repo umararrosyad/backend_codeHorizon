@@ -128,3 +128,31 @@ test("should successfully delete data user", (done) => {
     })
     .catch(done);
 });
+
+// Unit test for user login
+test("user login", (done) => {
+  request(app)
+    .post("/users/login")
+    .send({ email: "test@example.com", password: "password123" })
+    .expect(200)
+    .then((response) => {
+      const { token } = response.body;
+      expect(token).toBeTruthy();
+      done();
+    })
+    .catch(done);
+});
+
+// Unit test for user registration
+test("user registration", (done) => {
+  request(app)
+    .post("/users/register")
+    .send({ email: "test@example.com", password: "password123", name: "Test User" })
+    .expect(201)
+    .then((response) => {
+      const { message } = response.body;
+      expect(message).toBe("User registered successfully");
+      done();
+    })
+    .catch(done);
+});
