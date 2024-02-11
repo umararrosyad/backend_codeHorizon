@@ -13,7 +13,7 @@ module.exports = {
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: 'e-commerce_test',
-    host: '127.0.0.1',
+    host: 'localhost',
     dialect: 'postgres',
     logging : false
   },
