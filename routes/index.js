@@ -23,18 +23,18 @@ router.get("/", (req, res) => {
 router.use("/static", express.static(path.join(__dirname, "..", "public")));
 router.use("/categories", categoryRouter);
 router.use("/users", userRouter);
-router.use("/product", productRouter);
-router.use("/product", productGalleryRouter);
-router.use("/product", productTypeRouter);
-router.use("/product", productSizeRouter);
-router.use("/product", productVariantRouter);
-router.use("/product", expeditionProductRouter);
-router.use("/product", feedbackRouter);
+router.use("/products", productRouter);
+router.use("/products", productGalleryRouter);
+router.use("/products", productTypeRouter);
+router.use("/products", productSizeRouter);
+router.use("/products", productVariantRouter);
+router.use("/products", expeditionProductRouter);
+router.use("/products", feedbackRouter);
 router.use("/users", transactionRouter);
 router.use("/users", cartRouter);
 router.use("/users", addressRouter);
-router.use("/transaction", transactionAdminController);
-router.use("/expedition", expeditionRouter);
+router.use("/transactions", transactionAdminController);
+router.use("/expeditions", expeditionRouter);
 
 
 module.exports = router;

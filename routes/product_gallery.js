@@ -4,9 +4,9 @@ const ProductGalleryController = require("../controllers/productGallery_controll
 const auth = require('../middleware/auth')
 const multer = require("../middleware/multer");
 
-router.get("/:product_id/gallery/", ProductGalleryController.getAll);
-router.get("/:product_id/gallery/:id", ProductGalleryController.getOne);
-router.post("/:product_id/gallery/",auth, multer.single("image"), ProductGalleryController.create);
-router.delete("/:product_id/gallery/:id",auth, ProductGalleryController.delete);
+router.get("/:product_id/galleries/", ProductGalleryController.getAll);
+router.get("/:product_id/galleries/:id", ProductGalleryController.getOne);
+router.post("/:product_id/galleries/",auth, multer.single("image"), ProductGalleryController.create);
+router.delete("/:product_id/galleries/:id",auth, ProductGalleryController.delete);
 
 module.exports = router;

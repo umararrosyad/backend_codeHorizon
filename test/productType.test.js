@@ -6,7 +6,7 @@ const image = path.join(__dirname, "../public/test_image/logo.jpg");
 
 test("get all data product type", (done) => {
   request(app)
-    .get("/product/1/type/")
+    .get("/api/v1/products/1/types/")
     .expect(200)
     .then((response) => {
       const product = response.body;
@@ -21,7 +21,7 @@ test("get all data product type", (done) => {
 
 test("get one data product type", (done) => {
   request(app)
-    .get("/product/1/type/1")
+    .get("/api/v1/products/1/types/1")
     .expect(200)
     .then((response) => {
       const todo = response.body;
@@ -33,7 +33,7 @@ test("get one data product type", (done) => {
 
 test("message data not found", (done) => {
   request(app)
-    .get("/product/1/type/0")
+    .get("/api/v1/products/1/types/0")
     .expect(404)
     .then((response) => {
       const { message } = response.body;
@@ -45,7 +45,7 @@ test("message data not found", (done) => {
 let product_type_id;
 test("create data product type", (done) => {
   request(app)
-    .post("/product/1/type/")
+    .post("/api/v1/products/1/types/")
     .set("Authorization", token)
     .set("Content-Type", "multipart/form-data")
     .field("type_name", "name")
@@ -54,7 +54,7 @@ test("create data product type", (done) => {
     .then((response) => {
       const product = response.body;
       expect(product).toBeTruthy();
-      product_type_id = "/product/1/type/" + product.id;
+      product_type_id = "/api/v1/products/1/types/" + product.id;
       done();
     })
     .catch(done);
@@ -78,7 +78,7 @@ test("edit data product type", (done) => {
 
 test("incorrect input message", (done) => {
   request(app)
-    .post("/product/1/type/")
+    .post("/api/v1/products/1/types/")
     .set("Authorization", token)
     .expect(400)
     .then((response) => {
@@ -91,7 +91,7 @@ test("incorrect input message", (done) => {
 
 test("incorrect input file message", (done) => {
   request(app)
-    .post("/product/1/type/")
+    .post("/api/v1/products/1/types/")
     .set("Authorization", token)
     .field("type_name", "name")
     .expect(400)
@@ -105,7 +105,7 @@ test("incorrect input file message", (done) => {
 
 test("missing header", (done) => {
   request(app)
-    .post("/product/1/type/")
+    .post("/api/v1/products/1/types/")
     .expect(400)
     .then((response) => {
       const { message } = response.body;

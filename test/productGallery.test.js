@@ -6,7 +6,7 @@ const image = path.join(__dirname, "../public/test_image/logo.jpg");
 
 test("get all data product gallery", (done) => {
   request(app)
-    .get("/product/1/gallery/")
+    .get("/api/v1/products/1/galleries/")
     .expect(200)
     .then((response) => {
       const gallery = response.body;
@@ -21,7 +21,7 @@ test("get all data product gallery", (done) => {
 
 test("get one data product type", (done) => {
   request(app)
-    .get("/product/1/gallery/1")
+    .get("/api/v1/products/1/galleries/1")
     .expect(200)
     .then((response) => {
       const todo = response.body;
@@ -33,7 +33,7 @@ test("get one data product type", (done) => {
 
 test("message data not found", (done) => {
   request(app)
-    .get("/product/1/gallery/0")
+    .get("/api/v1/products/1/galleries/0")
     .expect(404)
     .then((response) => {
       const { message } = response.body;
@@ -45,7 +45,7 @@ test("message data not found", (done) => {
 let product_gallery_id;
 test("create data product gallery", (done) => {
   request(app)
-    .post("/product/1/gallery/")
+    .post("/api/v1/products/1/galleries/")
     .set("Authorization", token)
     .set("Content-Type", "multipart/form-data")
     .attach("image", image)
@@ -53,7 +53,7 @@ test("create data product gallery", (done) => {
     .then((response) => {
       const product = response.body;
       expect(product).toBeTruthy();
-      product_gallery_id = "/product/1/gallery/" + product.id;
+      product_gallery_id = "/api/v1/products/1/galleries/" + product.id;
       done();
     })
     .catch(done);
@@ -61,7 +61,7 @@ test("create data product gallery", (done) => {
 
 test("incorrect input message", (done) => {
   request(app)
-    .post("/product/1/gallery/")
+    .post("/api/v1/products/1/galleries/")
     .set("Authorization", token)
     .expect(400)
     .then((response) => {
@@ -74,7 +74,7 @@ test("incorrect input message", (done) => {
 
 test("missing header", (done) => {
   request(app)
-    .post("/product/1/gallery/")
+    .post("/api/v1/products/1/galleries/")
     .expect(400)
     .then((response) => {
       const { message } = response.body;

@@ -6,7 +6,7 @@ const image = path.join(__dirname, "../public/test_image/logo.jpg");
 
 test("get all data expedition", (done) => {
   request(app)
-    .get("/expedition/")
+    .get("/api/v1/expeditions/")
     .expect(200)
     .then((response) => {
       const product = response.body;
@@ -21,7 +21,7 @@ test("get all data expedition", (done) => {
 
 test("get one data expedition", (done) => {
   request(app)
-    .get("/expedition/1")
+    .get("/api/v1/expeditions/1")
     .expect(200)
     .then((response) => {
       const todo = response.body;
@@ -33,7 +33,7 @@ test("get one data expedition", (done) => {
 
 test("message data not found", (done) => {
   request(app)
-    .get("/expedition/0")
+    .get("/api/v1/expeditions/0")
     .expect(404)
     .then((response) => {
       const { message } = response.body;
@@ -45,7 +45,7 @@ test("message data not found", (done) => {
 let expedition;
 test("create data product expedition", (done) => {
   request(app)
-    .post("/expedition/")
+    .post("/api/v1/expeditions/")
     .set("Authorization", token)
     .set("Content-Type", "multipart/form-data")
     .field("expedition_name", "name")
@@ -54,7 +54,7 @@ test("create data product expedition", (done) => {
     .then((response) => {
       const product = response.body;
       expect(product).toBeTruthy();
-      expedition = "/expedition/" + product.id;
+      expedition = "/api/v1/expeditions/" + product.id;
       done();
     })
     .catch(done);
@@ -78,7 +78,7 @@ test("edit data product expedition", (done) => {
 
 test("incorrect input message", (done) => {
   request(app)
-    .post("/expedition/")
+    .post("/api/v1/expeditions/")
     .set("Authorization", token)
     .expect(400)
     .then((response) => {
@@ -91,7 +91,7 @@ test("incorrect input message", (done) => {
 
 test("incorrect input file message", (done) => {
   request(app)
-    .post("/expedition/")
+    .post("/api/v1/expeditions/")
     .set("Authorization", token)
     .field("expedition_name", "name")
     .expect(400)
@@ -105,7 +105,7 @@ test("incorrect input file message", (done) => {
 
 test("missing header", (done) => {
   request(app)
-    .post("/expedition/")
+    .post("/api/v1/expeditions/")
     .expect(400)
     .then((response) => {
       const { message } = response.body;

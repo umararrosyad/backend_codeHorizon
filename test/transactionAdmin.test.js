@@ -5,7 +5,7 @@ const image = path.join(__dirname, "../public/test_image/logo.jpg");
 const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzA3NDgyNTc5fQ.ysGhtGlGnNWotkUahNz-vOSuOy20gSlXW4-0rzszimM";
 test("get all data transaction", (done) => {
   request(app)
-    .get("/transaction/")
+    .get("/api/v1/transactions/")
     .set("Authorization", token)
     .expect(200)
     .then((response) => {
@@ -21,7 +21,7 @@ test("get all data transaction", (done) => {
 
 test("get one data transaction", (done) => {
   request(app)
-    .get("/transaction/1")
+    .get("/api/v1/transactions/1")
     .set("Authorization", token)
     .expect(200)
     .then((response) => {
@@ -34,7 +34,7 @@ test("get one data transaction", (done) => {
 
 test("message data not found", (done) => {
   request(app)
-    .get("/transaction/0")
+    .get("/api/v1/transactions/0")
     .set("Authorization", token)
     .expect(404)
     .then((response) => {
@@ -48,7 +48,7 @@ test("message data not found", (done) => {
 
 test("incorrect input message", (done) => {
   request(app)
-    .put("/transaction/1")
+    .put("/api/v1/transactions/1")
     .set("Authorization", token)
     .expect(400)
     .then((response) => {
@@ -61,7 +61,7 @@ test("incorrect input message", (done) => {
 
 test("missing header", (done) => {
   request(app)
-    .get("/transaction/")
+    .get("/api/v1/transactions/")
     .expect(400)
     .then((response) => {
       const { message } = response.body;
@@ -73,7 +73,7 @@ test("missing header", (done) => {
 
 test("update transaction status", (done) => {
     request(app)
-      .put("/transaction/1")
+      .put("/api/v1/transactions/1")
       .set("Authorization", token)
       .send({
         transaction_status : "dibayar"

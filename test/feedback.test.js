@@ -6,7 +6,7 @@ const image = path.join(__dirname, "../public/test_image/logo.jpg");
 
 test("get all data product feedback", (done) => {
   request(app)
-    .get("/product/1/feedback/")
+    .get("/api/v1/products/1/feedbacks/")
     .expect(200)
     .then((response) => {
       const product = response.body;
@@ -21,7 +21,7 @@ test("get all data product feedback", (done) => {
 
 test("get one data product feedback", (done) => {
   request(app)
-    .get("/product/1/feedback/1")
+    .get("/api/v1/products/1/feedbacks/1")
     .expect(200)
     .then((response) => {
       const todo = response.body;
@@ -33,7 +33,7 @@ test("get one data product feedback", (done) => {
 
 test("message data not found", (done) => {
   request(app)
-    .get("/product/1/feedback/0")
+    .get("/api/v1/products/1/feedbacks/0")
     .expect(404)
     .then((response) => {
       const { message } = response.body;
@@ -45,7 +45,7 @@ test("message data not found", (done) => {
 let url;
 test("create data product type", (done) => {
   request(app)
-    .post("/product/1/feedback/")
+    .post("/api/v1/products/1/feedbacks/")
     .set("Authorization", token)
     .set("Content-Type", "multipart/form-data")
     .field("user_id", "1")
@@ -57,7 +57,7 @@ test("create data product type", (done) => {
     .then((response) => {
       const product = response.body;
       expect(product).toBeTruthy();
-      url = "/product/1/feedback/" + product.id;
+      url = "/api/v1/products/1/feedbacks/" + product.id;
       done();
     })
     .catch(done);
@@ -65,7 +65,7 @@ test("create data product type", (done) => {
 
 test("edit data product feedback", (done) => {
     request(app)
-      .put("/product/1/feedback/1")
+      .put("/api/v1/products/1/feedbacks/1")
       .set("Authorization", token)
       .send({
             "rating" : "5",
@@ -83,7 +83,7 @@ test("edit data product feedback", (done) => {
 
 test("incorrect input message", (done) => {
   request(app)
-    .post("/product/1/feedback/")
+    .post("/api/v1/products/1/feedbacks/")
     .set("Authorization", token)
     .expect(400)
     .then((response) => {
@@ -96,7 +96,7 @@ test("incorrect input message", (done) => {
 
 test("missing header", (done) => {
   request(app)
-    .post("/product/1/feedback/")
+    .post("/api/v1/products/1/feedbacks/")
     .expect(400)
     .then((response) => {
       const { message } = response.body;

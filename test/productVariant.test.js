@@ -3,7 +3,7 @@ const request = require("supertest");
 const token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzA3NDgyNTc5fQ.ysGhtGlGnNWotkUahNz-vOSuOy20gSlXW4-0rzszimM";
 test("get all data product variant", (done) => {
   request(app)
-    .get("/product/1/variant/")
+    .get("/api/v1/products/1/variants/")
     .expect(200)
     .then((response) => {
       const product = response.body;
@@ -18,7 +18,7 @@ test("get all data product variant", (done) => {
 
 test("get one data product variant", (done) => {
   request(app)
-    .get("/product/1/variant/1")
+    .get("/api/v1/products/1/variants/1")
     .expect(200)
     .then((response) => {
       const todo = response.body;
@@ -30,7 +30,7 @@ test("get one data product variant", (done) => {
 
 test("message data not found", (done) => {
   request(app)
-    .get("/product/1/variant/0")
+    .get("/api/v1/products/1/variants/0")
     .expect(404)
     .then((response) => {
       const { message } = response.body;
@@ -42,7 +42,7 @@ test("message data not found", (done) => {
 let product_variant_id;
 test("create data product", (done) => {
   request(app)
-    .post("/product/1/variant/")
+    .post("/api/v1/products/1/variants/")
     .set("Authorization", token)
     .send({
       product_type_id: "2",
@@ -55,7 +55,7 @@ test("create data product", (done) => {
     .then((response) => {
       const product = response.body;
       expect(product).toBeTruthy();
-      product_variant_id = "/product/1/variant/" + product.id;
+      product_variant_id = "/api/v1/products/1/variants/" + product.id;
       done();
     })
     .catch(done);
@@ -81,7 +81,7 @@ test("edit data product", (done) => {
 
 test("incorrect input message", (done)=>{
     request(app)
-        .post('/product/1/variant/')
+        .post('/api/v1/products/1/variants/')
         .set("Authorization", token)
         .expect(400)
             .then(response=>{
@@ -94,7 +94,7 @@ test("incorrect input message", (done)=>{
 
 test("missing header", (done)=>{
     request(app)
-        .post('/product/1/variant/')
+        .post('/api/v1/products/1/variants/')
         .expect(400)
             .then(response=>{
                 const {message} = response.body;
