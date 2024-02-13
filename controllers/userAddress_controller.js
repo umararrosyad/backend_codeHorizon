@@ -1,11 +1,14 @@
-const { users, addresses } = require("../models");
+const { addresses } = require("../models");
 
 class AddressController {
   static async create(req, res, next) {
-
     try {
-      const { address, province_id, city_id, kode_pos } =req.body;
+      const { address, province_id, city_id, kode_pos } = req.body;
       const { user_id } = req.params;
+
+      if (!address || !province_id || !city_id || !kode_pos) {
+        throw { name: "nullParameter" };
+      }
 
       const dataAddress = await addresses.create({
         user_id:user_id,
@@ -24,6 +27,10 @@ class AddressController {
     try {
       const { user_id, id } = req.params;
       const { address, province_id, city_id, kode_pos } = req.body;
+      if (!address || !province_id || !city_id || !kode_pos) {
+        throw { name: "nullParameter" };
+      }
+
       const updateAddress = await addresses.update(
         {
           user_id: user_id,
@@ -37,7 +44,7 @@ class AddressController {
       if (updateAddress == "1") {
         return res.status(200).json({ message: "User Address updated successfully" });
       }
-      return res.status(200).json({ message: "User Address updated failed" });
+      return res.status(400).json({ message: "User Address updated failed" });
     } catch (error) {
       next(error);
     }
