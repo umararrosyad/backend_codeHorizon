@@ -21,20 +21,20 @@ router.get("/", (req, res) => {
 });
 
 router.use("/static", express.static(path.join(__dirname, "..", "public")));
-router.use("api/v1/categories", categoryRouter);
-router.use("api/v1/users", userRouter);
-router.use("api/v1/products", productRouter);
-router.use("api/v1/products", productGalleryRouter);
-router.use("api/v1/products", productTypeRouter);
-router.use("api/v1/products", productSizeRouter);
-router.use("api/v1/products", productVariantRouter);
-router.use("api/v1/products", expeditionProductRouter);
-router.use("api/v1/products", feedbackRouter);
-router.use("api/v1/users", transactionRouter);
-router.use("api/v1/users", cartRouter);
-router.use("api/v1/users", addressRouter);
-router.use("api/v1/transactions", transactionAdminController);
-router.use("api/v1/expeditions", expeditionRouter);
+router.use("/categories", categoryRouter);
+router.use("/users", userRouter);
+router.use("/products", productRouter);
+router.use("/products", productGalleryRouter);
+router.use("/products", productTypeRouter);
+router.use("/products", productSizeRouter);
+router.use("/products", productVariantRouter);
+router.use("/products", expeditionProductRouter);
+router.use("/products", feedbackRouter);
+router.use("/users", transactionRouter);
+router.use("/users", cartRouter);
+router.use("/users", addressRouter);
+router.use("/transactions", transactionAdminController);
+router.use("/expeditions", expeditionRouter);
 
 
 module.exports = router;
