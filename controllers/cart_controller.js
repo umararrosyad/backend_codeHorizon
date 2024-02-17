@@ -3,17 +3,35 @@ const { carts, product_variant } = require("../models");
 class CartController {
   static async getAll(req, res, next) {
     try {
+
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+
+      const offset = (page - 1) * limit;
       const { user_id } = req.params;
       const data = await carts.findAll({
         where: { user_id },
         include: [product_variant],
-        attributes: { exclude: ["createdAt", "updatedAt"] }
+        attributes: { exclude: ["createdAt", "updatedAt"]},
+        offset, limit 
       });
-      if (!data[0]) throw { name: "notFound" };
+      const count = await carts.count();
+      const totalPages = Math.ceil(count / limit);
+
+      if (data.length === 0 && page > 1) {
+        throw { name: "notFound" }; 
+      }
+
       res.status(200).json({
         status: "success",
-        message: "data berhasil ditemukan",
-        data
+        message: "Data berhasil ditemukan.",
+        data,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems: count,
+          perPage: limit
+        }
       });
     } catch (error) {
       next(error);

@@ -1,9 +1,23 @@
 const { products, categories, product_galleries, product_size, product_type, expedition_products, expedition, product_variant, feedbacks } = require("../models");
-
+const { Op } = require("sequelize");
 class ProductController {
   static async getAll(req, res, next) {
     try {
-      let data = await products.findAll({
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+
+      const offset = (page - 1) * limit;
+      const searchName = req.query.name || "";
+      const searchCategory = req.query.category_id || "";
+
+
+      const searchCondition = {
+        [Op.or]: [
+          { name: { [Op.iLike]: `%${searchName}%` } } ,
+          { category_id: { [Op.iLike]: `%${searchCategory}%` } } 
+        ]
+      };
+      const data  = await products.findAll({
         attributes: { exclude: ["createdAt", "updatedAt"] },
         include: [
           { model: categories, attributes: { exclude: ["createdAt", "updatedAt"] } },
@@ -24,18 +38,31 @@ class ProductController {
             attributes: { exclude: ["createdAt", "updatedAt"] },
             include: [{ model: expedition, attributes: { exclude: ["createdAt", "updatedAt"] } }]
           }
-        ]
+        ],
+        where: searchCondition,
+        offset,
+        limit
       });
-      if (!data[0]) {
-        throw { name: "notFound" };
+      
+      const count = await products.count({
+        where: searchCondition
+      });
+      const totalPages = Math.ceil(count / limit);
+
+      if (data.length === 0 && page > 1) {
+        throw { name: "notFound" }; // Handle jika halaman yang diminta lebih besar dari total halaman yang tersedia
       }
-      data = inputRating(data, getAllRatings(data));
-      data = inputPrice(data, getPrice(data));
 
       res.status(200).json({
-        status : "success",
-        message : "Data berhasil ditemukan.",
-        data
+        status: "success",
+        message: "Data berhasil ditemukan.",
+        data,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems: count,
+          perPage: limit
+        }
       });
     } catch (error) {
       next(error);
@@ -76,8 +103,8 @@ class ProductController {
       data = inputPrice(data, getPrice(data));
 
       res.status(200).json({
-        status : "success",
-        message : "Data berhasil ditemukan.",
+        status: "success",
+        message: "Data berhasil ditemukan.",
         data
       });
     } catch (error) {
@@ -100,8 +127,8 @@ class ProductController {
         updatedAt: new Date()
       });
       res.status(201).json({
-        status : "success",
-        message : "Data berhasil dibuat.",
+        status: "success",
+        message: "Data berhasil dibuat.",
         data
       });
     } catch (error) {
@@ -116,22 +143,22 @@ class ProductController {
       if (!name || !category_id || !description) {
         throw { name: "nullParameter" };
       }
-      const  [updateCount, [updatedItem]] = await products.update(
+      const [updateCount, [updatedItem]] = await products.update(
         {
           name,
           category_id,
           description
         },
-        { where: { id } , returning: true }
+        { where: { id }, returning: true }
       );
       const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
       const status = updateCount === 1 ? "success" : "error";
       const data = updateCount === 1 ? updatedItem : null;
-      res.status(201).json({ 
+      res.status(201).json({
         status,
         message,
         data
-       });
+      });
     } catch (error) {
       next(error);
     }
@@ -140,16 +167,16 @@ class ProductController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
-      const data = await products.findByPk(id)
-      if(!data){
+      const data = await products.findByPk(id);
+      if (!data) {
         throw { name: "notFound" };
       }
       await products.destroy({ where: { id } });
-      res.status(200).json({ 
-        status : "success",
-        message : "data berhasil dihapus",
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil dihapus",
         data
-       });
+      });
     } catch (error) {
       next(error);
     }

@@ -1,14 +1,40 @@
 const { categories } = require("../models");
+const { Op } = require("sequelize");
 
 class CategoryController {
   static async getAll(req, res, next) {
     try {
-      const data = await categories.findAll();
-      if (!data[0]) throw { name: "notFound" };
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+
+      const offset = (page - 1) * limit;
+      const searchName = req.query.name || "";
+
+      const searchCondition = {
+        [Op.or]: [
+          { category_name: { [Op.iLike]: `%${searchName}%` } } 
+        ]
+      };
+      const data = await categories.findAll({ where : searchCondition, offset, limit });
+      const count = await categories.count({
+        where: searchCondition
+      });
+      const totalPages = Math.ceil(count / limit);
+
+      if (data.length === 0 && page > 1) {
+        throw { name: "notFound" }; 
+      }
+
       res.status(200).json({
         status: "success",
-        message: "data berhasil ditemukan",
-        data
+        message: "Data berhasil ditemukan.",
+        data,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems: count,
+          perPage: limit
+        }
       });
     } catch (error) {
       next(error);

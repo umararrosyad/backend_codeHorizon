@@ -1,17 +1,55 @@
-const { transactions, transaction_details } = require("../models");
+const { transactions, transaction_details, product_variant, products } = require("../models");
 
 class TransactionController {
   static async getAll(req, res, next) {
     try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+
+      const offset = (page - 1) * limit;
+
       const { user_id } = req.params;
-      const data = await transactions.findAll({ where: { user_id }, attributes: { exclude: ["createdAt", "updatedAt"] }, include: [ {model :transaction_details , attributes: { exclude: ["createdAt", "updatedAt"] } }] });
-      if (!data[0]) {
+      const data = await transactions.findAll({
+        where: { user_id },
+        limit,
+        offset,
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        include: [
+          {
+            model: transaction_details,
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+            include: [
+              {
+                model: product_variant,
+                attributes: { exclude: ["createdAt", "updatedAt"] },
+                include: [
+                  {
+                    model: products,
+                    attributes: { exclude: ["createdAt", "updatedAt"] }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      });
+      const count = await transactions.count();
+      const totalPages = Math.ceil(count / limit);
+
+      if (data.length === 0 ) {
         throw { name: "notFound" };
       }
+
       res.status(200).json({
         status: "success",
-        message: "data berhasil ditemukan",
-        data
+        message: "Data berhasil ditemukan.",
+        data,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems: count,
+          perPage: limit
+        }
       });
     } catch (error) {
       next(error);
@@ -21,7 +59,7 @@ class TransactionController {
   static async getOne(req, res, next) {
     try {
       const { user_id, id } = req.params;
-      const data = await transactions.findByPk(id, { where: { user_id }, attributes: { exclude: ["createdAt", "updatedAt"] }, include: [ {model :transaction_details , attributes: { exclude: ["createdAt", "updatedAt"] } }] });
+      const data = await transactions.findByPk(id, { where: { user_id }, attributes: { exclude: ["createdAt", "updatedAt"] }, include: [{ model: transaction_details, attributes: { exclude: ["createdAt", "updatedAt"] } }] });
       if (!data) {
         throw { name: "notFound" };
       }
@@ -56,7 +94,7 @@ class TransactionController {
       res.status(201).json({
         status: "success",
         message: "data berhasil dibuat",
-        data : createData
+        data: createData
       });
     } catch (error) {
       next(error);
@@ -90,8 +128,8 @@ class TransactionController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
-      const data = await transactions.findByPk(id)
-      if(!data){
+      const data = await transactions.findByPk(id);
+      if (!data) {
         throw { name: "notFound" };
       }
       await transactions.destroy({ where: { id } });

@@ -1,20 +1,45 @@
 const { users, addresses } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { Op } = require("sequelize");
 
 class UserController {
   static async getAll(req, res, next) {
     try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+
+      const offset = (page - 1) * limit;
+      const searchName = req.query.name || "";
+
+      const searchCondition = {
+        [Op.or]: [{ name: { [Op.iLike]: `%${searchName}%` } }]
+      };
       const data = await users.findAll({
+        where: searchCondition,
         include: [addresses],
+        limit,
+        offset
       });
-      if(!data){
+      const count = await users.count({
+        where: searchCondition
+      });
+      const totalPages = Math.ceil(count / limit);
+
+      if (data.length === 0 && page > 1) {
         throw { name: "notFound" };
       }
+
       res.status(200).json({
         status: "success",
-        message: "data berhasil ditemukan",
-        data
+        message: "Data berhasil ditemukan.",
+        data,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems: count,
+          perPage: limit
+        }
       });
     } catch (error) {
       next(error);
@@ -26,7 +51,7 @@ class UserController {
       const { id } = req.params;
 
       const data = await users.findByPk(id, {
-        include: [addresses],
+        include: [addresses]
       });
       if (!data) throw { name: "notFound" };
 
@@ -43,7 +68,7 @@ class UserController {
   static async register(req, res, next) {
     try {
       const { email, name, password, phone_number } = req.body;
-      if(!email || !name || !password || !phone_number){
+      if (!email || !name || !password || !phone_number) {
         throw { name: "nullParameter" };
       }
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -52,15 +77,15 @@ class UserController {
         name,
         password: hashedPassword,
         phone_number,
-        role: "user", // Set nilai default role
+        role: "user",
         username: null,
-        photo_url: null,
+        photo_url: null
       });
 
       res.status(201).json({
         status: "success",
         message: "register berhasil",
-        data : newUser
+        data: newUser
       });
     } catch (error) {
       next(error);
@@ -79,14 +104,11 @@ class UserController {
         throw { name: "invalidCaredential" };
       }
       const token = jwt.sign({ id: user.id }, "codehorizon");
-      res
-        .cookie("access_token", token, { http_only: true })
-        .status(200)
-        .json({
-          status: "success",
-          message: "login berhasil",
-          data : user
-        });
+      res.cookie("access_token", token, { http_only: true }).status(200).json({
+        status: "success",
+        message: "login berhasil",
+        data: user
+      });
     } catch (err) {
       next(err);
     }
@@ -97,14 +119,14 @@ class UserController {
       const { id } = req.params;
       const { name, email, username, password, phone_number, photo_url } = req.body;
       const hashedPassword = await bcrypt.hash(password, 10);
-      const  [updateCount, [updatedItem]]  = await users.update(
+      const [updateCount, [updatedItem]] = await users.update(
         {
           name,
           email,
           username,
           password: hashedPassword,
           phone_number,
-          photo_url,
+          photo_url
         },
         { where: { id }, returning: true }
       );
@@ -124,11 +146,11 @@ class UserController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
-      const data = users.findByPk(id)
-      if(!data){
+      const data = users.findByPk(id);
+      if (!data) {
         throw { name: "notFound" };
       }
-      await users.destroy({where: { id }});
+      await users.destroy({ where: { id } });
       res.status(200).json({
         status: "success",
         message: "data berhasil dihapus",

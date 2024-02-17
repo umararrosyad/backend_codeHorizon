@@ -1,16 +1,38 @@
 const { expedition } = require("../models");
+const { Op } = require("sequelize");
 
 class ExpeditionController {
   static async getAll(req, res, next) {
     try {
-      const data = await expedition.findAll({ attributes: { exclude: ["createdAt", "updatedAt"] } });
-      if (!data[0]) {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+
+      const offset = (page - 1) * limit;
+      const searchName = req.query.name || "";
+
+      const searchCondition = {
+        [Op.or]: [{ expedition_name: { [Op.iLike]: `%${searchName}%` } }]
+      };
+      const data = await expedition.findAll({ attributes: { exclude: ["createdAt", "updatedAt"] }, where: searchCondition, offset, limit });
+      const count = await expedition.count({
+        where: searchCondition
+      });
+      const totalPages = Math.ceil(count / limit);
+
+      if (data.length === 0 && page > 1) {
         throw { name: "notFound" };
       }
+
       res.status(200).json({
         status: "success",
         message: "Data berhasil ditemukan.",
-        data: data
+        data,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems: count,
+          perPage: limit
+        }
       });
     } catch (error) {
       next(error);
