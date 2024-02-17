@@ -4,7 +4,7 @@ class ProductVariantController {
   static async getAll(req, res, next) {
     try {
       const { product_id } = req.params;
-      const variant = await product_variant.findAll({
+      const data = await product_variant.findAll({
         attributes: { exclude: ["createdAt", "updatedAt"] },
         include: [
           { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
@@ -12,10 +12,14 @@ class ProductVariantController {
         ],
         where: { product_id }
       });
-      if (!variant[0]) {
+      if (!data[0]) {
         throw { name: "notFound" };
       }
-      res.status(200).json(variant);
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil ditemukan",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -24,7 +28,7 @@ class ProductVariantController {
   static async getOne(req, res, next) {
     try {
       const { product_id, id } = req.params;
-      const variant = await product_variant.findByPk(id, {
+      const data = await product_variant.findByPk(id, {
         attributes: { exclude: ["createdAt", "updatedAt"] },
         include: [
           { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
@@ -32,10 +36,14 @@ class ProductVariantController {
         ],
         where: { product_id }
       });
-      if (!variant) {
+      if (!data) {
         throw { name: "notFound" };
       }
-      res.status(200).json(variant);
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil dihapus",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -61,7 +69,11 @@ class ProductVariantController {
       }
 
       const data = await product_variant.create({ product_id, product_type_id, stock, product_size_id, weight, price });
-      res.status(201).json(data);
+      res.status(201).json({
+        status: "success",
+        message: "data berhasil dibuat",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -71,13 +83,15 @@ class ProductVariantController {
     try {
       const { weight, price, stock } = req.body;
       const { id } = req.params;
-      if ( !weight || !price || !stock) {
-        throw { name: "nullParameter" };
-      }
-
-      const data = await product_variant.update({ stock, weight, price }, {where : {id}});
-      const status = data[0] == 1 ? "success" : "error";
-      res.status(200).json({status});
+      const [updateCount, [updatedItem]] = await product_variant.update({ stock, weight, price }, {where : {id}, returning: true });
+      const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
+      const status = updateCount === 1 ? "success" : "error";
+      const data = updateCount === 1 ? updatedItem : null;
+      res.status(200).json({
+        status,
+        message,
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -86,9 +100,16 @@ class ProductVariantController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
+      const data = product_variant.findByPk()
+      if(!data){
+        throw { name: "notFound" };
+      }
       await product_variant.destroy({ where: { id } });
-      let status = "success";
-      res.status(200).json({ status });
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil dihapus",
+        data
+      });
     } catch (error) {
       next(error);
     }

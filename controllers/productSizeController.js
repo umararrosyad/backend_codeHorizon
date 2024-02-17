@@ -4,11 +4,15 @@ class ProductSizeController {
   static async getAll(req, res, next) {
     try {
       const { product_id } = req.params;
-      let type = await product_size.findAll({ where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
-      if (!type[0]) {
+      const data = await product_size.findAll({ where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if (!data[0]) {
         throw { name: "notFound" };
       }
-      res.status(200).json(type);
+      res.status(200).json({
+        status : "success",
+        message : "Data berhasil ditemukan.",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -17,11 +21,15 @@ class ProductSizeController {
   static async getOne(req, res, next) {
     try {
       const { product_id, id } = req.params;
-      let type = await product_size.findByPk(id, { where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
-      if (!type) {
+      const data = await product_size.findByPk(id, { where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if (!data) {
         throw { name: "notFound" };
       }
-      res.status(200).json(type);
+      res.status(200).json({
+        status : "success",
+        message : "Data berhasil ditemukan.",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -34,9 +42,12 @@ class ProductSizeController {
       if(!size_name){
         throw { name: "nullParameter" };
       }
-
       const data = await product_size.create({ product_id, size_name });
-      res.status(201).json(data);
+      res.status(201).json({
+        status : "success",
+        message : "Data berhasil dibuat.",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -49,9 +60,15 @@ class ProductSizeController {
       if(!size_name){
         throw { name: "nullParameter" };
       }
-      const data = await product_size.update({ size_name }, { where: { product_id, id } });
-      const status = data[0] == 1 ? "success" : "error";
-      res.status(200).json({ status });
+      const [updateCount, [updatedItem]] = await product_size.update({ size_name }, { where: { product_id, id },  returning: true });
+      const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
+      const status = updateCount === 1 ? "success" : "error";
+      const data = updateCount === 1 ? updatedItem : null;
+      res.status(200).json({
+        status,
+        message,
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -60,9 +77,16 @@ class ProductSizeController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
+      const data = await product_size.findByPk(id)
+      if(!data){
+        throw { name: "notFound" };
+      }
       await product_size.destroy({ where: { id } });
-      let status = "success";
-      res.status(200).json({ status });
+      res.status(200).json({ 
+        status : "success",
+        message : "data berhasil dihapus",
+        data
+       });
     } catch (error) {
       next(error);
     }

@@ -3,7 +3,7 @@ const { products, categories, product_galleries, product_size, product_type, exp
 class ProductController {
   static async getAll(req, res, next) {
     try {
-      let Product = await products.findAll({
+      let data = await products.findAll({
         attributes: { exclude: ["createdAt", "updatedAt"] },
         include: [
           { model: categories, attributes: { exclude: ["createdAt", "updatedAt"] } },
@@ -26,13 +26,17 @@ class ProductController {
           }
         ]
       });
-      if (!Product[0]) {
+      if (!data[0]) {
         throw { name: "notFound" };
       }
-      Product = inputRating(Product, getAllRatings(Product));
-      Product = inputPrice(Product, getPrice(Product));
+      data = inputRating(data, getAllRatings(data));
+      data = inputPrice(data, getPrice(data));
 
-      res.status(200).json(Product);
+      res.status(200).json({
+        status : "success",
+        message : "Data berhasil ditemukan.",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -41,7 +45,7 @@ class ProductController {
   static async getOne(req, res, next) {
     try {
       const { id } = req.params;
-      let Product = await products.findByPk(id, {
+      let data = await products.findByPk(id, {
         attributes: ["id", "category_id", "name", "description"],
         include: [
           { model: categories, attributes: ["id", "category_name"] },
@@ -65,13 +69,17 @@ class ProductController {
         ]
       });
 
-      if (!Product) {
+      if (!data) {
         throw { name: "notFound" };
       }
-      Product = inputRating(Product, getAllRatings(Product));
-      Product = inputPrice(Product, getPrice(Product));
+      data = inputRating(data, getAllRatings(data));
+      data = inputPrice(data, getPrice(data));
 
-      res.status(200).json(Product);
+      res.status(200).json({
+        status : "success",
+        message : "Data berhasil ditemukan.",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -84,17 +92,18 @@ class ProductController {
         throw { name: "nullParameter" };
       }
 
-      const newProduct = await products.create({
+      const data = await products.create({
         name,
         category_id,
         description,
         createdAt: new Date(),
         updatedAt: new Date()
       });
-      if (newProduct) {
-        newProduct.dataValues.status = "success";
-      }
-      res.status(201).json(newProduct);
+      res.status(201).json({
+        status : "success",
+        message : "Data berhasil dibuat.",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -107,21 +116,22 @@ class ProductController {
       if (!name || !category_id || !description) {
         throw { name: "nullParameter" };
       }
-      const newProduct = await products.update(
+      const  [updateCount, [updatedItem]] = await products.update(
         {
           name,
           category_id,
           description
         },
-        { where: { id } }
+        { where: { id } , returning: true }
       );
-      let status;
-      if (newProduct[0] == "1") {
-        status = "success";
-      } else {
-        status = "error";
-      }
-      res.status(201).json({ status });
+      const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
+      const status = updateCount === 1 ? "success" : "error";
+      const data = updateCount === 1 ? updatedItem : null;
+      res.status(201).json({ 
+        status,
+        message,
+        data
+       });
     } catch (error) {
       next(error);
     }
@@ -130,10 +140,16 @@ class ProductController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
+      const data = await products.findByPk(id)
+      if(!data){
+        throw { name: "notFound" };
+      }
       await products.destroy({ where: { id } });
-      let status;
-      status = "success";
-      res.status(200).json({ status });
+      res.status(200).json({ 
+        status : "success",
+        message : "data berhasil dihapus",
+        data
+       });
     } catch (error) {
       next(error);
     }

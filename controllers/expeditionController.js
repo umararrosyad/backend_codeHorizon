@@ -3,11 +3,15 @@ const { expedition } = require("../models");
 class ExpeditionController {
   static async getAll(req, res, next) {
     try {
-      const expe = await expedition.findAll({ attributes: { exclude: ["createdAt", "updatedAt"] } });
-      if (!expe[0]) {
+      const data = await expedition.findAll({ attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if (!data[0]) {
         throw { name: "notFound" };
       }
-      res.status(200).json(expe);
+      res.status(200).json({
+        status: "success",
+        message: "Data berhasil ditemukan.",
+        data: data
+      });
     } catch (error) {
       next(error);
     }
@@ -16,11 +20,15 @@ class ExpeditionController {
   static async getOne(req, res, next) {
     try {
       const { id } = req.params;
-      const expe = await expedition.findByPk(id ,{  attributes: { exclude: ["createdAt", "updatedAt"] } });
-      if (!expe) {
+      const data = await expedition.findByPk(id, { attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if (!data) {
         throw { name: "notFound" };
       }
-      res.status(200).json(expe);
+      res.status(200).json({
+        status: "success",
+        message: "Data berhasil ditemukan.",
+        data: data
+      });
     } catch (error) {
       next(error);
     }
@@ -38,7 +46,11 @@ class ExpeditionController {
       const { filename } = req.file;
       const photo_url = `${req.protocol}://${req.get("host")}/static/${filename}`;
       const data = await expedition.create({ photo_url, expedition_name });
-      res.status(201).json(data);
+      res.status(201).json({
+        status: "success",
+        message: "Data berhasil dibuat",
+        data: data
+      });
     } catch (error) {
       next(error);
     }
@@ -47,18 +59,22 @@ class ExpeditionController {
   static async update(req, res, next) {
     try {
       const { expedition_name } = req.body;
-      if (!expedition_name) {
-        throw { name: "nullParameter" };
-      }
       const { id } = req.params;
-      if (!req.file) {
-        throw { name: "fileNotFound" };
+      let photo_url;
+      if (req.file) {
+        const { filename } = req.file;
+        photo_url = `${req.protocol}://${req.get("host")}/static/${filename}`;
       }
-      const { filename } = req.file;
-      const photo_url = `${req.protocol}://${req.get("host")}/static/${filename}`;
-      const data = await expedition.update({ photo_url, expedition_name }, { where: { id } });
-      const status = data[0] == 1 ? "success" : "error";
-      res.status(200).json({ status });
+
+      const [updateCount, [updatedItem]] = await expedition.update({ photo_url, expedition_name }, { where: { id }, returning: true });
+      const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
+      const status = updateCount === 1 ? "success" : "error";
+      const data = updateCount === 1 ? updatedItem : null;
+      res.status(200).json({
+        status,
+        message,
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -67,9 +83,13 @@ class ExpeditionController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
+      const data = await expedition.findByPk(id);
       await expedition.destroy({ where: { id } });
-      const status = "success";
-      res.status(200).json({ status });
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil dihapus",
+        data: data
+      });
     } catch (error) {
       next(error);
     }

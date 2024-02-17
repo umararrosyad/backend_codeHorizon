@@ -1,16 +1,40 @@
 const errorHandler = (err,req,res, next)=>{
     if(err.name === 'notFound'){
-        res.status(404).json({message: 'Target Tidak Ditemukan'})
+        res.status(404).json({
+            status : "error",
+            message: 'data Tidak Ditemukan',
+            data : {}
+        })
     }else if(err.name === 'invalidCaredential'){
-        res.status(400).json({message: 'Username atau password salah'})
+        res.status(400).json({
+            status : "error",
+            message: 'Username atau password salah',
+            data : {}
+        })
     }else if(err.name === 'nullParameter'){
-        res.status(400).json({message: 'Parameter Tidak Boleh Kosong'})
+        res.status(400).json({
+            status : "error",
+            message: 'Parameter Tidak Boleh Kosong',
+            data : {}
+        })
     }else if(err.name === 'missAuth'){
-        res.status(400).json({message: 'Authorization header missing'})
+        res.status(400).json({
+            status : "error",
+            message: 'Authorization header missing',
+            data : {}
+        })
     }else if(err.name === 'fileNotFound'){
-        res.status(400).json({message: 'Tidak Ada File Yang Dikirimkan'})
+        res.status(400).json({
+            status : "error",
+            message: 'Tidak Ada File Yang Dikirimkan',
+            data : {}
+        })
     }else if(err.name === 'DataExist'){
-        res.status(400).json({message: 'Pasangan product type dan product size sudah ada.'})
+        res.status(400).json({
+            status : "error",
+            message: 'Pasangan product type dan product size sudah ada.',
+            data : {}
+        })
     }
 }
 

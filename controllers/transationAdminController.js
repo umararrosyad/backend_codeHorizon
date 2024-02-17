@@ -3,11 +3,15 @@ const { transactions, transaction_details } = require("../models");
 class TransactionController {
   static async getAll(req, res, next) {
     try {
-      const trans = await transactions.findAll({ attributes: { exclude: ["createdAt", "updatedAt"] }, include: [ {model :transaction_details , attributes: { exclude: ["createdAt", "updatedAt"] } }] });
-      if (!trans[0]) {
+      const data = await transactions.findAll({ attributes: { exclude: ["createdAt", "updatedAt"] }, include: [ {model :transaction_details , attributes: { exclude: ["createdAt", "updatedAt"] } }] });
+      if (!data[0]) {
         throw { name: "notFound" };
       }
-      res.status(200).json(trans);
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil ditemukan",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -16,11 +20,15 @@ class TransactionController {
   static async getOne(req, res, next) {
     try {
       const { id } = req.params;
-      const trans = await transactions.findByPk(id, { attributes: { exclude: ["createdAt", "updatedAt"] }, include: [ {model :transaction_details , attributes: { exclude: ["createdAt", "updatedAt"] } }] });
-      if (!trans) {
+      const data = await transactions.findByPk(id, { attributes: { exclude: ["createdAt", "updatedAt"] }, include: [ {model :transaction_details , attributes: { exclude: ["createdAt", "updatedAt"] } }] });
+      if (!data) {
         throw { name: "notFound" };
       }
-      res.status(200).json(trans);
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil ditemukan",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -33,9 +41,15 @@ class TransactionController {
       if (!transaction_status ) {
         throw { name: "nullParameter" };
       }
-      const data = await transactions.update({ transaction_status }, { where: { id } });
-      const status = data[0] == 1 ? "success" : "error";
-      res.status(200).json({ status });
+      const [updateCount, [updatedItem]] = await transactions.update({ transaction_status }, { where: { id }, returning: true });
+      const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
+      const status = updateCount === 1 ? "success" : "error";
+      const data = updateCount === 1 ? updatedItem : null;
+      res.status(200).json({
+        status,
+        message,
+        data
+      });
     } catch (error) {
       next(error);
     }

@@ -4,11 +4,15 @@ class ProductTypeController {
   static async getAll(req, res, next) {
     try {
       const { product_id } = req.params;
-      let type = await product_type.findAll({ where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
-      if(!type[0]){
+      let data = await product_type.findAll({ where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if(!data[0]){
         throw { name: "notFound" };
       }
-      res.status(200).json(type);
+      res.status(200).json({
+        status: "success",
+        message: "Data berhasil ditemukan.",
+        data: data
+      });
     } catch (error) {
       next(error);
     }
@@ -17,11 +21,15 @@ class ProductTypeController {
   static async getOne(req, res, next) {
     try {
       const { product_id, id } = req.params;
-      let type = await product_type.findByPk(id, { where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
-      if(!type){
+      let data = await product_type.findByPk(id, { where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if(!data){
         throw { name: "notFound" };
       }
-      res.status(200).json(type);
+      res.status(200).json({
+        status: "success",
+        message: "Data berhasil ditemukan.",
+        data: data
+      });
     } catch (error) {
       next(error);
     }
@@ -40,7 +48,11 @@ class ProductTypeController {
       const { filename } = req.file;
       const photo_url = `${req.protocol}://${req.get("host")}/static/${filename}`;
       const data = await product_type.create({ product_id, photo_url, type_name });
-      res.status(200).json(data);
+      res.status(200).json({
+        status: "success",
+        message: "Data berhasil dibuat.",
+        data: data
+      });
     } catch (error) {
       next(error);
     }
@@ -49,18 +61,22 @@ class ProductTypeController {
   static async update(req, res, next) {
     try {
       const { type_name } = req.body;
-      if(!type_name){
-        throw { name: "nullParameter" };
-      }
       const { product_id, id } = req.params;
-      if (!req.file) {
-        throw { name: "fileNotFound" };
+      let photo_url
+      if (req.file) {
+        const { filename } = req.file;
+        photo_url = `${req.protocol}://${req.get("host")}/static/${filename}`;
       }
-      const { filename } = req.file;
-      const photo_url = `${req.protocol}://${req.get("host")}/static/${filename}`;
-      const data = await product_type.update({ photo_url, type_name }, { where: { product_id, id } });
-      const status = data[0] == 1 ? "success" : "error";
-      res.status(200).json({ status });
+      
+      const [updateCount, [updatedItem]]  = await product_type.update({ photo_url, type_name }, { where: { product_id, id }, returning: true });
+      const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
+      const status = updateCount === 1 ? "success" : "error";
+      const data = updateCount === 1 ? updatedItem : null;
+      res.status(200).json({
+        status,
+        message,
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -69,10 +85,16 @@ class ProductTypeController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
+      const data = await product_type.findByPk(id)
+      if(!data){
+        throw { name: "notFound" };
+      }
       await product_type.destroy({ where: { id } });
-      let status;
-      status = "success";
-      res.status(200).json({ status });
+      res.status(200).json({ 
+        status: "success",
+        message: "data berhasil dihapus",
+        data
+       });
     } catch (error) {
       next(error);
     }

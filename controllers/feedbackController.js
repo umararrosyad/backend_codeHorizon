@@ -4,7 +4,7 @@ class feedbacksController {
   static async getAll(req, res, next) {
     try {
       const { product_id } = req.params;
-      let expe = await feedbacks.findAll({
+      let data = await feedbacks.findAll({
         attributes: { exclude: ["createdAt", "updatedAt"] },
         include: [
           {
@@ -19,10 +19,14 @@ class feedbacksController {
           { model: feedback_galleries, attributes: { exclude: ["createdAt", "updatedAt"] } }
         ]
       });
-      if (!expe[0]) {
+      if (!data[0]) {
         throw { name: "notFound" };
       }
-      res.status(200).json(expe);
+      res.status(200).json({
+        status : "success",
+        message : "Data berhasil ditemukan.",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -31,7 +35,7 @@ class feedbacksController {
   static async getOne(req, res, next) {
     try {
       const { product_id, id } = req.params;
-      let expe = await feedbacks.findByPk(id, {
+      let data = await feedbacks.findByPk(id, {
         attributes: { exclude: ["createdAt", "updatedAt"] },
         include: [
           {
@@ -46,10 +50,14 @@ class feedbacksController {
           { model: feedback_galleries, attributes: { exclude: ["createdAt", "updatedAt"] } }
         ]
       });
-      if (!expe) {
+      if (!data) {
         throw { name: "notFound" };
       }
-      res.status(200).json(expe);
+      res.status(200).json({
+        status : "success",
+        message : "Data berhasil ditemukan.",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -73,10 +81,14 @@ class feedbacksController {
         await feedback_galleries.create({ feedback_id, photo_url });
       }
       
-      const data1 = await feedbacks.findByPk(feedback_id, {
+      const createData = await feedbacks.findByPk(feedback_id, {
         include: [feedback_galleries]
       });
-      res.status(201).json(data1);
+      res.status(201).json({
+        status : "success",
+        message : "Data berhasil dibuat.",
+        data : createData
+      });
     } catch (error) {
       next(error);
     }
@@ -86,12 +98,15 @@ class feedbacksController {
     try {
       const { feedback, rating } = req.body;
       const { id } = req.params;
-      if ( !feedback || !rating ){
-        throw { name: "nullParameter" };
-      }
-      const data = await feedbacks.update({ feedback, rating }, { where: {  id } });
-      const status = data[0] == 1 ? "success" : "error";
-      res.status(200).json({ status });
+      const [updateCount, [updatedItem]] = await feedbacks.update({ feedback, rating }, { where: { id }, returning: true });
+      const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
+      const status = updateCount === 1 ? "success" : "error";
+      const data = updateCount === 1 ? updatedItem : null;
+      res.status(200).json({
+        status,
+        message,
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -100,9 +115,16 @@ class feedbacksController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
+      data = await feedbacks.findByPk(id)
+      if (!data) {
+        throw { name: "notFound" };
+      }
       await feedbacks.destroy({ where: { id } });
-      let status = "success";
-      res.status(200).json({ status });
+      res.status(200).json({ 
+        status : success,
+        message : "data berhasil dihaps",
+        data
+       });
     } catch (error) {
       next(error);
     }
@@ -111,9 +133,16 @@ class feedbacksController {
   static async deleteGallery(req, res, next) {
     try {
       const { id } = req.params;
+      data = await feedback_galleries.findByPk(id)
+      if (!data) {
+        throw { name: "notFound" };
+      }
       await feedback_galleries.destroy({ where: { id } });
-      let status = "success";
-      res.status(200).json({ status });
+      res.status(200).json({ 
+        status : "success",
+        message : "data berhasil dihapus",
+        data
+       });
     } catch (error) {
       next(error);
     }

@@ -4,11 +4,15 @@ class TransactionController {
   static async getAll(req, res, next) {
     try {
       const { user_id } = req.params;
-      const trans = await transactions.findAll({ where: { user_id }, attributes: { exclude: ["createdAt", "updatedAt"] }, include: [ {model :transaction_details , attributes: { exclude: ["createdAt", "updatedAt"] } }] });
-      if (!trans[0]) {
+      const data = await transactions.findAll({ where: { user_id }, attributes: { exclude: ["createdAt", "updatedAt"] }, include: [ {model :transaction_details , attributes: { exclude: ["createdAt", "updatedAt"] } }] });
+      if (!data[0]) {
         throw { name: "notFound" };
       }
-      res.status(200).json(trans);
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil ditemukan",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -17,11 +21,15 @@ class TransactionController {
   static async getOne(req, res, next) {
     try {
       const { user_id, id } = req.params;
-      const trans = await transactions.findByPk(id, { where: { user_id }, attributes: { exclude: ["createdAt", "updatedAt"] }, include: [ {model :transaction_details , attributes: { exclude: ["createdAt", "updatedAt"] } }] });
-      if (!trans) {
+      const data = await transactions.findByPk(id, { where: { user_id }, attributes: { exclude: ["createdAt", "updatedAt"] }, include: [ {model :transaction_details , attributes: { exclude: ["createdAt", "updatedAt"] } }] });
+      if (!data) {
         throw { name: "notFound" };
       }
-      res.status(200).json(trans);
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil ditemukan",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -41,11 +49,15 @@ class TransactionController {
         await transaction_details.create({ transaction_id, product_variant_id, price, qty });
       }
 
-      const data1 = await transactions.findByPk(transaction_id, {
+      const createData = await transactions.findByPk(transaction_id, {
         include: [{ model: transaction_details, attributes: { exclude: ["createdAt", "updatedAt"] } }],
         attributes: { exclude: ["createdAt", "updatedAt"] }
       });
-      res.status(201).json(data1);
+      res.status(201).json({
+        status: "success",
+        message: "data berhasil dibuat",
+        data : createData
+      });
     } catch (error) {
       next(error);
     }
@@ -60,8 +72,15 @@ class TransactionController {
 
       const { filename } = req.file;
       const payment_photo_url = `${req.protocol}://${req.get("host")}/static/${filename}`;
-      const data = await transactions.update({ payment_photo_url }, { where: { user_id, id } });
-      const status = data[0] == 1 ? "success" : "error";
+      const [updateCount, [updatedItem]] = await transactions.update({ payment_photo_url }, { where: { user_id, id }, returning: true });
+      const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
+      const status = updateCount === 1 ? "success" : "error";
+      const data = updateCount === 1 ? updatedItem : null;
+      res.status(200).json({
+        status,
+        message,
+        data
+      });
       res.status(200).json({ status });
     } catch (error) {
       next(error);
@@ -71,10 +90,16 @@ class TransactionController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
+      const data = await transactions.findByPk(id)
+      if(!data){
+        throw { name: "notFound" };
+      }
       await transactions.destroy({ where: { id } });
-      let status;
-      status = "success";
-      res.status(200).json({ status });
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil dihapus",
+        data
+      });
     } catch (error) {
       next(error);
     }

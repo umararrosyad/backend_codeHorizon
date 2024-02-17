@@ -4,7 +4,7 @@ class ExpeditionProductController {
   static async getAll(req, res, next) {
     try {
       const { product_id } = req.params;
-      let expe = await expedition_products.findAll({
+      let data = await expedition_products.findAll({
         attributes: { exclude: ["createdAt", "updatedAt"] },
         where: { product_id },
         include: [
@@ -14,10 +14,14 @@ class ExpeditionProductController {
           }
         ]
       });
-      if (!expe[0]) {
+      if (!data[0]) {
         throw { name: "notFound" };
       }
-      res.status(200).json(expe);
+      res.status(200).json({
+        status : "success",
+        message : "Data berhasil ditemukan.",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -26,7 +30,7 @@ class ExpeditionProductController {
   static async getOne(req, res, next) {
     try {
       const { product_id, id } = req.params;
-      let expe = await expedition_products.findByPk(id, {
+      let data = await expedition_products.findByPk(id, {
         attributes: { exclude: ["createdAt", "updatedAt"] },
         where: { product_id },
         include: [
@@ -36,10 +40,14 @@ class ExpeditionProductController {
           }
         ]
       });
-      if (!expe) {
+      if (!data) {
         throw { name: "notFound" };
       }
-      res.status(200).json(expe);
+      res.status(200).json({
+        status : "success",
+        message : "Data berhasil ditemukan.",
+        data : data
+      });
     } catch (error) {
       next(error);
     }
@@ -53,7 +61,11 @@ class ExpeditionProductController {
         throw { name: "nullParameter" };
       }
       const data = await expedition_products.create({ product_id, expedition_id });
-      res.status(201).json(data);
+      res.status(201).json({
+        status : "success",
+        message : "Data berhasil dibuat.",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -66,10 +78,15 @@ class ExpeditionProductController {
       if (!expedition_id) {
         throw { name: "nullParameter" };
       }
-      console.log(expedition_id);
-      const data = await expedition_products.update({ expedition_id }, { where: { product_id, id } });
-      const status = data[0] == 1 ? "success" : "error";
-      res.status(200).json({ status });
+      const [updateCount, [updatedItem]] = await expedition_products.update({ expedition_id }, { where: { product_id,id }, returning: true });
+      const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
+      const status = updateCount === 1 ? "success" : "error";
+      const data = updateCount === 1 ? updatedItem : null;
+      res.status(200).json({
+        status,
+        message,
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -78,9 +95,16 @@ class ExpeditionProductController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
+      const data = await expedition_products.findByPk(id)
+      if(!data){
+        throw { name: "notFound" };
+      }
       await expedition_products.destroy({ where: { id } });
-      let status = "success";
-      res.status(200).json({ status });
+      res.status(200).json({
+        status : "success",
+        message : "data berhasil dihapus",
+        data : data
+      });
     } catch (error) {
       next(error);
     }

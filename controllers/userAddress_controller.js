@@ -10,14 +10,18 @@ class AddressController {
         throw { name: "nullParameter" };
       }
 
-      const dataAddress = await addresses.create({
-        user_id:user_id,
+      const data = await addresses.create({
+        user_id : user_id,
         address,
         province_id,
         city_id,
         kode_pos,
       });
-      res.status(200).json(dataAddress);
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil dibuat",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -31,7 +35,7 @@ class AddressController {
         throw { name: "nullParameter" };
       }
 
-      const updateAddress = await addresses.update(
+      const [updateCount, [updatedItem]] = await addresses.update(
         {
           user_id: user_id,
           address,
@@ -39,12 +43,16 @@ class AddressController {
           city_id,
           kode_pos,
         },
-        { where: { id,user_id } }
+        { where: { id,user_id }, returning: true }
       );
-      if (updateAddress == "1") {
-        return res.status(200).json({ message: "User Address updated successfully" });
-      }
-      return res.status(400).json({ message: "User Address updated failed" });
+      const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
+      const status = updateCount === 1 ? "success" : "error";
+      const data = updateCount === 1 ? updatedItem : null;
+      res.status(200).json({
+        status,
+        message,
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -53,10 +61,17 @@ class AddressController {
   static async delete(req, res, next) {
     try {
       const {user_id, id } = req.params;
-
-      // Hapus pengguna berdasarkan ID
+      const data = await addresses.findByPk(id)
+      if(!data){
+        throw { name: "notFound" }
+      }
       await addresses.destroy({ where: { user_id, id} });
-      res.status(200).json({ message: "User Address deleted successfully" });
+
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil dihapus",
+        data
+      });
     } catch (err) {
       next(err);
     }

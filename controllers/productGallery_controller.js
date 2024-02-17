@@ -4,11 +4,15 @@ class ProductGalleryController {
   static async getAll(req, res, next) {
     try {
       const { product_id } = req.params;
-      let gallery = await product_galleries.findAll({ where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
-      if(!gallery[0]){
+      let data = await product_galleries.findAll({ where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if(!data[0]){
         throw {name:"notFound"}
       }
-      res.status(200).json(gallery);
+      res.status(200).json({
+        status : "success",
+        message : "Data berhasil ditemukan.",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -17,11 +21,15 @@ class ProductGalleryController {
   static async getOne(req, res, next) {
     try {
       const { product_id, id } = req.params;
-      let gallery = await product_galleries.findByPk(id, { where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
-      if (!gallery) {
+      let data = await product_galleries.findByPk(id, { where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if (!data) {
         throw { name: "notFound" };
       }
-      res.status(200).json(gallery);
+      res.status(200).json({
+        status : "success",
+        message : "Data berhasil ditemukan.",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -36,7 +44,11 @@ class ProductGalleryController {
       const { filename } = req.file;
       const photo_url = `${req.protocol}://${req.get("host")}/static/${filename}`;
       const data = await product_galleries.create({ product_id, photo_url });
-      res.status(200).json(data);
+      res.status(200).json({
+        status : "success",
+        message : "Data berhasil dibuat.",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -45,10 +57,16 @@ class ProductGalleryController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
+      const data = product_galleries.findByPk(id)
+      if(!data){
+        throw {name:"notFound"}
+      }
       await product_galleries.destroy({ where: { id } });
-      let status;
-      status = "success";
-      res.status(200).json({ status });
+      res.status(200).json({ 
+        status : "success",
+        message : "data berhasil dihapus",
+        data
+       });
     } catch (error) {
       next(error);
     }
