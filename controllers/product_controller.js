@@ -8,17 +8,17 @@ class ProductController {
 
       const offset = (page - 1) * limit;
       const searchName = req.query.name || "";
-      const searchCategory = req.query.category_id || "";
-
 
       const searchCondition = {
         [Op.or]: [
-          { name: { [Op.iLike]: `%${searchName}%` } } ,
-          { category_id: { [Op.iLike]: `%${searchCategory}%` } } 
-        ]
+          { name: { [Op.iLike]: `%${searchName}%` } }, 
+      ]
       };
-      const data  = await products.findAll({
+      const data = await products.findAll({
         attributes: { exclude: ["createdAt", "updatedAt"] },
+        where: searchCondition,
+        offset,
+        limit,
         include: [
           { model: categories, attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: product_galleries, attributes: { exclude: ["createdAt", "updatedAt"] } },
@@ -38,15 +38,13 @@ class ProductController {
             attributes: { exclude: ["createdAt", "updatedAt"] },
             include: [{ model: expedition, attributes: { exclude: ["createdAt", "updatedAt"] } }]
           }
-        ],
-        where: searchCondition,
-        offset,
-        limit
+        ]
       });
-      
+
       const count = await products.count({
         where: searchCondition
       });
+      console.log(count);
       const totalPages = Math.ceil(count / limit);
 
       if (data.length === 0 && page > 1) {
