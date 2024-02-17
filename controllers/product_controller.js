@@ -41,10 +41,13 @@ class ProductController {
         ]
       });
 
+      const data1 = inputRating(data, getAllRatings(data));
+      const data2 = inputPrice(data1, getPrice(data));
+
       const count = await products.count({
         where: searchCondition
       });
-      console.log(count);
+      // console.log(count);
       const totalPages = Math.ceil(count / limit);
 
       if (data.length === 0 && page > 1) {
@@ -54,7 +57,7 @@ class ProductController {
       res.status(200).json({
         status: "success",
         message: "Data berhasil ditemukan.",
-        data,
+        data : data2,
         pagination: {
           currentPage: page,
           totalPages,
@@ -73,23 +76,23 @@ class ProductController {
       let data = await products.findByPk(id, {
         attributes: ["id", "category_id", "name", "description"],
         include: [
-          { model: categories, attributes: ["id", "category_name"] },
-          { model: product_galleries, attributes: ["id", "photo_url"] },
-          { model: product_size, attributes: ["id", "size_name"] },
-          { model: product_type, attributes: ["id", "type_name", "photo_url"] },
+          { model: categories, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: product_galleries, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } },
           {
             model: product_variant,
-            attributes: ["id", "weight", "price", "stock"],
+            attributes: { exclude: ["createdAt", "updatedAt"] },
             include: [
-              { model: feedbacks, attributes: ["id", "rating"] },
-              { model: product_size, attributes: ["id", "size_name"] },
-              { model: product_type, attributes: ["id", "type_name", "photo_url"] }
+              { model: feedbacks, attributes: { exclude: ["createdAt", "updatedAt"] } },
+              { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
+              { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } }
             ]
           },
           {
             model: expedition_products,
-            attributes: ["id", "expedition_id"],
-            include: [{ model: expedition, attributes: ["id", "expedition_name", "photo_url"] }]
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+            include: [{ model: expedition, attributes: { exclude: ["createdAt", "updatedAt"] } }]
           }
         ]
       });
@@ -97,13 +100,13 @@ class ProductController {
       if (!data) {
         throw { name: "notFound" };
       }
-      data = inputRating(data, getAllRatings(data));
-      data = inputPrice(data, getPrice(data));
+      const data1 = inputRating(data, getAllRatings(data));
+      const data2 = inputPrice(data1, getPrice(data));
 
       res.status(200).json({
         status: "success",
         message: "Data berhasil ditemukan.",
-        data
+        data : data2
       });
     } catch (error) {
       next(error);
@@ -213,14 +216,15 @@ function getPrice(data) {
     let variant_price = [];
     const variants = data[i].product_variants;
 
+    
+
     for (let j = 0; j < variants.length; j++) {
       variant_price.push(variants[j].dataValues.price);
     }
-
-    price.push(variant_price);
-
-    return price;
+    console.log(data.length)
+    price.push(variant_price);    
   }
+  return price;
 }
 
 function getAllRatings(data) {
