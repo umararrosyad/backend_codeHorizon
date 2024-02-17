@@ -62,7 +62,6 @@ class CartController {
       } else {
         const data1 = cart[0].dataValues;
         const newQty = data1.qty + qty;
-        console.log(data1);
         const [updateCount, [updatedItem]] = await carts.update(
           {
             qty: newQty
