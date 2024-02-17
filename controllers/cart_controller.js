@@ -4,12 +4,17 @@ class CartController {
   static async getAll(req, res, next) {
     try {
       const { user_id } = req.params;
-      let cart = await carts.findAll({
+      const data = await carts.findAll({
         where: { user_id },
         include: [product_variant],
-        attributes: { exclude: ["createdAt", "updatedAt"] },
+        attributes: { exclude: ["createdAt", "updatedAt"] }
       });
-      res.status(200).json(cart);
+      if (!data[0]) throw { name: "notFound" };
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil ditemukan",
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -19,12 +24,16 @@ class CartController {
     try {
       const { user_id, id } = req.params;
 
-      const cart = await carts.findByPk(id, {
+      const data = await carts.findByPk(id, {
         where: { user_id, id },
-        include: [product_variant],
+        include: [product_variant]
       });
-      if (!cart) throw { name: "Item not found" };
-      res.status(200).json(cart);
+      if (!data) throw { name: "notFound" };
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil ditemukan",
+        data
+      });
     } catch (err) {
       next(err);
     }
@@ -32,41 +41,88 @@ class CartController {
 
   static async create(req, res, next) {
     try {
-      const { qty } = req.body;
+      const { qty, product_variant_id } = req.body;
+      if (!qty || !product_variant_id) {
+        throw { name: "nullParameter" };
+      }
       const { user_id } = req.params;
+      const cart = await carts.findAll({ where: { product_variant_id, user_id } });
+      if (!cart[0]) {
+        const newCart = await carts.create({
+          user_id,
+          product_variant_id,
+          qty
+        });
 
-      const newCart = await carts.create({
-        user_id: user_id,
-        product_variant_id:null,
-        qty,
-      });
-      
-      res.status(200).json(newCart);
+        res.status(201).json({
+          status: "success",
+          message: "data berhasil dibuat",
+          data: newCart
+        });
+      } else {
+        const data1 = cart[0].dataValues;
+        const newQty = data1.qty + qty;
+        console.log(data1);
+        const [updateCount, [updatedItem]] = await carts.update(
+          {
+            qty: newQty
+          },
+          { where: { id: data1.id }, returning: true }
+        );
+        const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
+        const status = updateCount === 1 ? "success" : "error";
+        const data = updateCount === 1 ? updatedItem : null;
+        res.status(200).json({
+          status,
+          message,
+          data
+        });
+      }
     } catch (error) {
       next(error);
     }
   }
 
-  static async update(req, res, next) {
+  static async getOne(req, res, next) {
     try {
       const { user_id, id } = req.params;
-      const { address, province_id, city_id, kode_pos } = req.body;
-      const updateAddress = await addresses.update(
-        {
-          user_id: user_id,
-          address,
-          province_id,
-          city_id,
-          kode_pos,
-        },
-        { where: { id, user_id } }
-      );
-      if (updateAddress == "1") {
-        return res
-          .status(200)
-          .json({ message: "User Address updated successfully" });
+
+      const data = await carts.findByPk(id, {
+        where: { user_id, id },
+        include: [product_variant]
+      });
+      if (!data) throw { name: "notFound" };
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil ditemukan",
+        data
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async update(req, res, next) {
+    try {
+      const { qty, product_variant_id } = req.body;
+      if (!qty || !product_variant_id) {
+        throw { name: "nullParameter" };
       }
-      return res.status(200).json({ message: "User Address updated failed" });
+      const { user_id, id } = req.params;
+      const [updateCount, [updatedItem]] = await carts.update(
+        {
+          qty
+        },
+        { where: { id}, returning: true }
+      );
+      const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
+      const status = updateCount === 1 ? "success" : "error";
+      const data = updateCount === 1 ? updatedItem : null;
+      res.status(200).json({
+        status,
+        message,
+        data
+      });
     } catch (error) {
       next(error);
     }
@@ -75,10 +131,14 @@ class CartController {
   static async delete(req, res, next) {
     try {
       const { user_id, id } = req.params;
-
-      // Hapus pengguna berdasarkan ID
-      await addresses.destroy({ where: { user_id, id } });
-      res.status(200).json({ message: "User Address deleted successfully" });
+      const data = await carts.findByPk(id);
+      if (!data) throw { name: "notFound" };
+      await carts.destroy({ where: { user_id, id } });
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil dibuat",
+        data: newCart
+      });
     } catch (err) {
       next(err);
     }

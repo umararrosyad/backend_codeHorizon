@@ -10,8 +10,8 @@ test("get all data expedition", (done) => {
     .expect(200)
     .then((response) => {
       const product = response.body;
-      expect(Array.isArray(product)).toBeTruthy();
-      product.forEach((product) => {
+      expect(Array.isArray(product.data)).toBeTruthy();
+      product.data.forEach((product) => {
         expect(product).toBeTruthy();
       });
       done();
@@ -25,7 +25,7 @@ test("get one data expedition", (done) => {
     .expect(200)
     .then((response) => {
       const todo = response.body;
-      expect(todo).toBeTruthy();
+      expect(todo.data).toBeTruthy();
       done();
     })
     .catch(done);
