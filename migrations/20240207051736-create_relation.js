@@ -28,6 +28,18 @@ module.exports = {
 
 async function relationProduct(queryInterface) {
   await queryInterface.addConstraint("products", {
+    fields: ["werehouse_id"],
+    type: "foreign key",
+    name: "fk_products_werehouse",
+    references: {
+      table: "Werehouses",
+      field: "id"
+    },
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE"
+  });
+
+  await queryInterface.addConstraint("products", {
     fields: ["category_id"],
     type: "foreign key",
     name: "fk_products_categories",

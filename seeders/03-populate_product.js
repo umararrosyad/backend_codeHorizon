@@ -18,6 +18,7 @@ module.exports = {
         {
           name: "Kaos Kaki",
           category_id: "1",
+          werehouse_id : "1",
           description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,",
           createdAt: new Date(),
           updatedAt: new Date()
@@ -25,6 +26,7 @@ module.exports = {
         {
           name: "Baju Bayi",
           category_id: "1",
+          werehouse_id : "1",
           description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,",
           createdAt: new Date(),
           updatedAt: new Date()
@@ -32,6 +34,7 @@ module.exports = {
         {
           name: "Popok",
           category_id: "2",
+          werehouse_id : "1",
           description: "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam",
           createdAt: new Date(),
           updatedAt: new Date()
