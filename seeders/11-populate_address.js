@@ -9,8 +9,8 @@ module.exports = {
         {
           user_id: "1",
           address: "jl haji subroto",
-          province_id: "1",
-          city_id: "1",
+          province_id: "5",
+          city_id: "39",
           kode_pos: "9992",
           createdAt: new Date(),
           updatedAt: new Date()
@@ -18,8 +18,8 @@ module.exports = {
         {
           user_id: "1",
           address: "jl haji subroto",
-          province_id: "2",
-          city_id: "3",
+          province_id: "5",
+          city_id: "39",
           kode_pos: "9992",
           createdAt: new Date(),
           updatedAt: new Date()
@@ -27,8 +27,8 @@ module.exports = {
         {
           user_id: "2",
           address: "jl haji subroto",
-          province_id: "1",
-          city_id: "1",
+          province_id: "5",
+          city_id: "39",
           kode_pos: "9992",
           createdAt: new Date(),
           updatedAt: new Date()
