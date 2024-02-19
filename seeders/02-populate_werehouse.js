@@ -21,6 +21,13 @@ module.exports = {
           city_id: "39",
           createdAt: new Date(),
           updatedAt: new Date()
+        },
+        {
+          address: "jl in aja dulu yaa kaan",
+          province_id: "5",
+          city_id: "39",
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       ],
       {}

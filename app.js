@@ -8,8 +8,16 @@ app.use(express.json())
 app.use(express.urlencoded({extended : true}))
 
 app.use("/api/v1",router)
-app.use(errorHandler)
 
+app.use((req, res, next) => {
+  try{
+    throw { name: "notFoundEndpoin" }; 
+  }catch(error){
+    next(error)
+  }
+});
+
+app.use(errorHandler)
 
 
 if(process.env.NODE_ENV != "test"){

@@ -1,4 +1,4 @@
-const { products, categories, product_galleries, product_size, product_type, expedition_products, expedition, product_variant, feedbacks } = require("../models");
+const { products, Werehouses, categories, product_galleries, product_size, product_type, expedition_products, expedition, product_variant, feedbacks } = require("../models");
 const { Op } = require("sequelize");
 class ProductController {
   static async getAll(req, res, next) {
@@ -10,17 +10,17 @@ class ProductController {
       const searchName = req.query.name || "";
 
       const searchCondition = {
-        [Op.or]: [
-          { name: { [Op.iLike]: `%${searchName}%` } }, 
-      ]
+        [Op.or]: [{ name: { [Op.iLike]: `%${searchName}%` } }]
       };
-      const data = await products.findAll({
-        attributes: { exclude: ["createdAt", "updatedAt"] },
+
+      let data = await products.findAll({
         where: searchCondition,
         offset,
         limit,
+        attributes: ["id", "category_id", "name", "description"],
         include: [
           { model: categories, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: Werehouses, attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: product_galleries, attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } },
@@ -57,7 +57,7 @@ class ProductController {
       res.status(200).json({
         status: "success",
         message: "Data berhasil ditemukan.",
-        data : data2,
+        data: data2,
         pagination: {
           currentPage: page,
           totalPages,
@@ -100,13 +100,14 @@ class ProductController {
       if (!data) {
         throw { name: "notFound" };
       }
+
       const data1 = inputRating(data, getAllRatings(data));
       const data2 = inputPrice(data1, getPrice(data));
 
       res.status(200).json({
         status: "success",
         message: "Data berhasil ditemukan.",
-        data : data2
+        data: data2
       });
     } catch (error) {
       next(error);
@@ -216,13 +217,10 @@ function getPrice(data) {
     let variant_price = [];
     const variants = data[i].product_variants;
 
-    
-
     for (let j = 0; j < variants.length; j++) {
       variant_price.push(variants[j].dataValues.price);
     }
-    console.log(data.length)
-    price.push(variant_price);    
+    price.push(variant_price);
   }
   return price;
 }

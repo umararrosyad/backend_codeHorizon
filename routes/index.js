@@ -12,8 +12,9 @@ const expeditionProductRouter = require("./expedition_product");
 const feedbackRouter = require("./feedbacks");
 const transactionRouter = require("./transaction");
 const cartRouter = require("./cart");
-const addressRouter = require("./addresses")
-const transactionAdminController = require("./transactionAdmin")
+const addressRouter = require("./addresses");
+const werehouseRouter = require("./werehouse");
+const transactionAdminController = require("./transactionAdmin");
 const path = require("path");
 
 router.get("/", (req, res) => {
@@ -35,6 +36,6 @@ router.use("/users", cartRouter);
 router.use("/users", addressRouter);
 router.use("/transactions", transactionAdminController);
 router.use("/expeditions", expeditionRouter);
-
+router.use("/werehouses", werehouseRouter);
 
 module.exports = router;
