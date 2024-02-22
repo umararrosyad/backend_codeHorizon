@@ -14,14 +14,15 @@ const transactionRouter = require("./transaction");
 const cartRouter = require("./cart");
 const addressRouter = require("./addresses");
 const werehouseRouter = require("./werehouse");
+const rajaongkir = require("./rajaOngkir");
 const transactionAdminController = require("./transactionAdmin");
-const path = require("path");
+
 
 router.get("/", (req, res) => {
   res.send("Halo, dunia!");
 });
 
-router.use("/static", express.static(path.join(__dirname, "..", "public")));
+
 router.use("/categories", categoryRouter);
 router.use("/users", userRouter);
 router.use("/products", productRouter);
@@ -37,5 +38,6 @@ router.use("/users", addressRouter);
 router.use("/transactions", transactionAdminController);
 router.use("/expeditions", expeditionRouter);
 router.use("/werehouses", werehouseRouter);
+router.use("/rajaongkirs", rajaongkir);
 
 module.exports = router;

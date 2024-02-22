@@ -1,10 +1,22 @@
 const { Werehouses } = require("../models");
 const axios = require("axios");
+const { Op } = require("sequelize");
 
 class WerehouseController {
   static async getAll(req, res, next) {
     try {
-      const data = await Werehouses.findAll({ attributes: { exclude: ["createdAt", "updatedAt"] } });
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+
+      const offset = (page - 1) * limit;
+      const searchName = req.query.address || "";
+
+      const searchCondition = {
+        [Op.or]: [{ address: { [Op.iLike]: `%${searchName}%` } }]
+      };
+
+      const data = await Werehouses.findAll({ where: searchCondition, offset, limit, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      console.log(data);
       if (!data[0]) {
         throw { name: "notFound" };
       }
@@ -17,10 +29,26 @@ class WerehouseController {
         data[i].dataValues.city_name = response.city_name;
         data[i].dataValues.province_name = response.province;
       }
+
+      const count = await Werehouses.count({
+        where: searchCondition
+      });
+      const totalPages = Math.ceil(count / limit);
+
+      if (data.length === 0 && page > 1) {
+        throw { name: "notFound" };
+      }
+
       res.status(200).json({
         status: "success",
         message: "Data berhasil ditemukan.",
-        data
+        data,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems: count,
+          perPage: limit
+        }
       });
     } catch (error) {
       next(error);
@@ -116,7 +144,7 @@ async function getName(city, province) {
       province: province
     },
     headers: {
-      key: "0382f3187bf1cf90fdc5487b8a659c45"
+      key: "b8fdacc491673b3aec6fd902aea0a131"
     }
   });
   return response.data.rajaongkir.results;

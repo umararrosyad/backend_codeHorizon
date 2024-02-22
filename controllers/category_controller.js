@@ -11,18 +11,16 @@ class CategoryController {
       const searchName = req.query.name || "";
 
       const searchCondition = {
-        [Op.or]: [
-          { category_name: { [Op.iLike]: `%${searchName}%` } } 
-        ]
+        [Op.or]: [{ category_name: { [Op.iLike]: `%${searchName}%` } }]
       };
-      const data = await categories.findAll({ where : searchCondition, offset, limit });
+      const data = await categories.findAll({ where: searchCondition, offset, limit });
       const count = await categories.count({
         where: searchCondition
       });
       const totalPages = Math.ceil(count / limit);
 
       if (data.length === 0 && page > 1) {
-        throw { name: "notFound" }; 
+        throw { name: "notFound" };
       }
 
       res.status(200).json({
@@ -84,11 +82,12 @@ class CategoryController {
     try {
       const { id } = req.params;
       const { category_name } = req.body;
+      let photo_url
       if (req.file) {
-        throw { name: "fileNotFound" };
+        const { filename } = req.file;
+        photo_url = `${req.protocol}://${req.get("host")}/static/${filename}`;
       }
-      const { filename } = req.file;
-      const photo_url = `${req.protocol}://${req.get("host")}/static/${filename}`;
+      
       const [updateCount, [updatedItem]] = await categories.update({ category_name, photo_url }, { where: { id }, returning: true });
       const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
       const status = updateCount === 1 ? "success" : "error";

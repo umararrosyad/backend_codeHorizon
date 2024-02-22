@@ -16,6 +16,7 @@ module.exports = {
       "Werehouses",
       [
         {
+          werehouse_name : "werehouse 1",
           address: "jl in aja dulu",
           province_id: "5",
           city_id: "39",
@@ -23,6 +24,7 @@ module.exports = {
           updatedAt: new Date()
         },
         {
+          werehouse_name : "werehouse 2",
           address: "jl in aja dulu yaa kaan",
           province_id: "5",
           city_id: "39",
