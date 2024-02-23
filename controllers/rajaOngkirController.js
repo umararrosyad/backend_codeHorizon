@@ -1,13 +1,14 @@
 const { Werehouses } = require("../models");
 const axios = require("axios");
 const { Op } = require("sequelize");
+require('dotenv').config();
 
 class WerehouseController {
   static async getCity(req, res, next) {
     try {
       const response = await axios.get("https://api.rajaongkir.com/starter/city", {
         headers: {
-          key: "b8fdacc491673b3aec6fd902aea0a131"
+          key: process.env.Token_raja_ongkir
         }
       });
 
@@ -26,7 +27,7 @@ class WerehouseController {
     try {
       const response = await axios.get("https://api.rajaongkir.com/starter/province", {
         headers: {
-          key: "b8fdacc491673b3aec6fd902aea0a131"
+          key: process.env.Token_raja_ongkir
         }
       });
 

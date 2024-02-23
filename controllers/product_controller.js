@@ -17,6 +17,7 @@ class ProductController {
         where: searchCondition,
         offset,
         limit,
+        order: [["id", "ASC"]],
         attributes: ["id", "category_id", "name", "description"],
         include: [
           { model: categories, attributes: { exclude: ["createdAt", "updatedAt"] } },
@@ -74,9 +75,10 @@ class ProductController {
     try {
       const { id } = req.params;
       let data = await products.findByPk(id, {
-        attributes: ["id", "category_id", "name", "description"],
+        attributes: ["id", "category_id","werehouse_id" ,"name", "description"],
         include: [
           { model: categories, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: Werehouses, attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: product_galleries, attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } },
@@ -116,18 +118,24 @@ class ProductController {
 
   static async create(req, res, next) {
     try {
-      const { name, category_id, description } = req.body;
-      if (!name || !category_id || !description) {
+      const { werehouse_id, name, category_id, description } = req.body;
+      console.log(werehouse_id, name, category_id, description);
+      if (!werehouse_id || !name || !category_id || !description) {
         throw { name: "nullParameter" };
       }
+
+      console.log(werehouse_id, name, category_id, description);
 
       const data = await products.create({
         name,
         category_id,
+        werehouse_id,
         description,
         createdAt: new Date(),
         updatedAt: new Date()
       });
+      console.log(data);
+
       res.status(201).json({
         status: "success",
         message: "Data berhasil dibuat.",
@@ -141,13 +149,14 @@ class ProductController {
   static async update(req, res, next) {
     try {
       const { id } = req.params;
-      const { name, category_id, description } = req.body;
+      const { werehouse_id, name, category_id, description } = req.body;
       if (!name || !category_id || !description) {
         throw { name: "nullParameter" };
       }
       const [updateCount, [updatedItem]] = await products.update(
         {
           name,
+          werehouse_id,
           category_id,
           description
         },
@@ -169,6 +178,7 @@ class ProductController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
+      console.log(id)
       const data = await products.findByPk(id);
       if (!data) {
         throw { name: "notFound" };

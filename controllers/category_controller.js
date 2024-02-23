@@ -13,7 +13,7 @@ class CategoryController {
       const searchCondition = {
         [Op.or]: [{ category_name: { [Op.iLike]: `%${searchName}%` } }]
       };
-      const data = await categories.findAll({ where: searchCondition, offset, limit });
+      const data = await categories.findAll({ where: searchCondition, offset, limit,order: [['id', 'ASC']]  });
       const count = await categories.count({
         where: searchCondition
       });
