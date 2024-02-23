@@ -22,7 +22,7 @@ class ProductController {
         include: [
           { model: categories, attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: Werehouses, attributes: { exclude: ["createdAt", "updatedAt"] } },
-          { model: product_galleries, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: product_galleries, order : [["id", "ASC"]], attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } },
           {
@@ -75,7 +75,7 @@ class ProductController {
     try {
       const { id } = req.params;
       let data = await products.findByPk(id, {
-        attributes: ["id", "category_id","werehouse_id" ,"name", "description"],
+        attributes: ["id", "category_id", "werehouse_id", "name", "description"],
         include: [
           { model: categories, attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: Werehouses, attributes: { exclude: ["createdAt", "updatedAt"] } },
@@ -134,8 +134,19 @@ class ProductController {
         createdAt: new Date(),
         updatedAt: new Date()
       });
-      console.log(data);
+      console.log(data.id);
+      const data2 = await product_variant.create({
+        product_id: data.id,
+        product_type_id: null,
+        product_size_id: null,
+        weight: 0,
+        price: 0,
+        stock : 0,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
 
+      console.log(data2)
       res.status(201).json({
         status: "success",
         message: "Data berhasil dibuat.",
@@ -178,7 +189,7 @@ class ProductController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
-      console.log(id)
+      console.log(id);
       const data = await products.findByPk(id);
       if (!data) {
         throw { name: "notFound" };

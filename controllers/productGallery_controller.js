@@ -4,7 +4,7 @@ class ProductGalleryController {
   static async getAll(req, res, next) {
     try {
       const { product_id } = req.params;
-      let data = await product_galleries.findAll({ where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] } });
+      let data = await product_galleries.findAll({ where: { product_id }, attributes: { exclude: ["createdAt", "updatedAt"] },  order: [["id", "ASC"]] });
       if(!data[0]){
         throw {name:"notFound"}
       }
