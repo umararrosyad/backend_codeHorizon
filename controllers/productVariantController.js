@@ -6,6 +6,7 @@ class ProductVariantController {
       const { product_id } = req.params;
       const data = await product_variant.findAll({
         attributes: { exclude: ["createdAt", "updatedAt"] },
+        order: [["product_type_id", "ASC"]],
         include: [
           { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } }

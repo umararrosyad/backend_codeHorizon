@@ -114,6 +114,29 @@ class UserController {
     }
   }
 
+  static async loginAdmin(req, res, next) {
+    try {
+      const { email, password } = req.body;
+      const user = await users.findOne({ where: { email, role: "admin" } });
+      if (!user) {
+        throw { name: "invalidCaredential" };
+      }
+
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
+        throw { name: "invalidCaredential" };
+      }
+      const token = jwt.sign({ id: user.id }, "codehorizon");
+      res.status(200).json({
+        status: "success",
+        message: "login berhasil",
+        data: token
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   static async update(req, res, next) {
     try {
       const { id } = req.params;
