@@ -1,4 +1,4 @@
-const { transactions, transaction_details, product_variant, products } = require("../models");
+const { transactions, transaction_details, product_galleries, product_variant, products, users, product_type, product_size, addresses } = require("../models");
 
 class TransactionController {
   static async getAll(req, res, next) {
@@ -12,6 +12,8 @@ class TransactionController {
         offset,
         attributes: { exclude: ["createdAt", "updatedAt"] },
         include: [
+          { model: users, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: addresses, attributes: { exclude: ["createdAt", "updatedAt"] } },
           {
             model: transaction_details,
             attributes: { exclude: ["createdAt", "updatedAt"] },
@@ -23,6 +25,14 @@ class TransactionController {
                   {
                     model: products,
                     attributes: { exclude: ["createdAt", "updatedAt"] }
+                  },
+                  {
+                    model: product_type,
+                    attributes: { exclude: ["createdAt", "updatedAt"] }
+                  },
+                  {
+                    model: product_size,
+                    attributes: { exclude: ["createdAt", "updatedAt"] }
                   }
                 ]
               }
@@ -30,6 +40,19 @@ class TransactionController {
           }
         ]
       });
+
+      const promises = await data.map(async (item, index1) => {
+        await Promise.all(
+          item.transaction_details.map(async (item, index2) => {
+            const id = item.product_variant.product.id;
+            const gallery = await product_galleries.findAll({ where: { product_id: id } });
+            data[index1].transaction_details[index2].product_variant.product.dataValues.product_galleries = gallery;
+          })
+        );
+      });
+
+      await Promise.all(promises);
+
       const count = await transactions.count();
       const totalPages = Math.ceil(count / limit);
 

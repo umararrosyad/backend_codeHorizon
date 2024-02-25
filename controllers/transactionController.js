@@ -36,7 +36,7 @@ class TransactionController {
       const count = await transactions.count();
       const totalPages = Math.ceil(count / limit);
 
-      if (data.length === 0 ) {
+      if (data.length === 0) {
         throw { name: "notFound" };
       }
 

@@ -12,7 +12,7 @@ module.exports = {
           username: "supri",
           password: "12345",
           phone_number: "9853908590345",
-          role: "uaer",
+          role: "user",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -22,7 +22,7 @@ module.exports = {
           username: "kang",
           password: "12345",
           phone_number: "9853908590345",
-          role: "uaer",
+          role: "user",
           createdAt: new Date(),
           updatedAt: new Date()
         }
