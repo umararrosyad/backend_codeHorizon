@@ -11,7 +11,6 @@ module.exports = {
           address: "jl haji subroto",
           province_id: "5",
           city_id: "39",
-          kode_pos: "9992",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -20,7 +19,6 @@ module.exports = {
           address: "jl haji subroto",
           province_id: "5",
           city_id: "39",
-          kode_pos: "9992",
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -29,7 +27,6 @@ module.exports = {
           address: "jl haji subroto",
           province_id: "5",
           city_id: "39",
-          kode_pos: "9992",
           createdAt: new Date(),
           updatedAt: new Date()
         }

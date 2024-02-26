@@ -1,4 +1,4 @@
-const { addresses } = require("../models");
+const { addresses, provinces, cities } = require("../models");
 const axios = require("axios");
 class AddressController {
   static async getAll(req, res, next) {
@@ -7,7 +7,11 @@ class AddressController {
 
       const data = await addresses.findAll({
         where: { user_id },
-        attributes: { exclude: ["createdAt", "updatedAt"] }
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        include: [
+          { model: provinces, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: cities, attributes: { exclude: ["createdAt", "updatedAt"] } }
+        ]
       });
 
       if (!data[0]) {

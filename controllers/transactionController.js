@@ -103,6 +103,27 @@ class TransactionController {
 
   static async update(req, res, next) {
     try {
+      const { id } = req.params;
+      const { transaction_status } = req.body;
+      if (!transaction_status) {
+        throw { name: "nullParameter" };
+      }
+      const [updateCount, [updatedItem]] = await transactions.update({ transaction_status }, { where: { id }, returning: true });
+      const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
+      const status = updateCount === 1 ? "success" : "error";
+      const data = updateCount === 1 ? updatedItem : null;
+      res.status(200).json({
+        status,
+        message,
+        data
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async upload(req, res, next) {
+    try {
       const { user_id, id } = req.params;
       if (!req.file) {
         throw { name: "fileNotFound" };

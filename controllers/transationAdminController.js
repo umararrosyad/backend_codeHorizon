@@ -1,19 +1,31 @@
-const { transactions, transaction_details, product_galleries, product_variant, products, users, product_type, product_size, addresses } = require("../models");
-
+const { transactions, transaction_details, product_galleries, provinces, cities, product_variant, products, users, product_type, product_size, addresses } = require("../models");
+const { Op } = require("sequelize");
 class TransactionController {
   static async getAll(req, res, next) {
     try {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
+      const searchName = req.query.status || "";
+      const searchCondition = {
+        [Op.or]: [{ transaction_status: { [Op.iLike]: `%${searchName}%` } }]
+      };
 
       const offset = (page - 1) * limit;
       const data = await transactions.findAll({
+        where: searchCondition,
         limit,
         offset,
         attributes: { exclude: ["createdAt", "updatedAt"] },
         include: [
           { model: users, attributes: { exclude: ["createdAt", "updatedAt"] } },
-          { model: addresses, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          {
+            model: addresses,
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+            include: [
+              { model: provinces, attributes: { exclude: ["createdAt", "updatedAt"] } },
+              { model: cities, attributes: { exclude: ["createdAt", "updatedAt"] } }
+            ]
+          },
           {
             model: transaction_details,
             attributes: { exclude: ["createdAt", "updatedAt"] },
@@ -79,7 +91,61 @@ class TransactionController {
   static async getOne(req, res, next) {
     try {
       const { id } = req.params;
-      const data = await transactions.findByPk(id, { attributes: { exclude: ["createdAt", "updatedAt"] }, include: [{ model: transaction_details, attributes: { exclude: ["createdAt", "updatedAt"] } }] });
+      const data = await transactions.findByPk(id, {
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        include: [
+          { model: users, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          {
+            model: addresses,
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+            include: [
+              { model: provinces, attributes: { exclude: ["createdAt", "updatedAt"] } },
+              { model: cities, attributes: { exclude: ["createdAt", "updatedAt"] } }
+            ]
+          },
+          {
+            model: transaction_details,
+            attributes: { exclude: ["createdAt", "updatedAt"] },
+            include: [
+              {
+                model: product_variant,
+                attributes: { exclude: ["createdAt", "updatedAt"] },
+                include: [
+                  {
+                    model: products,
+                    attributes: { exclude: ["createdAt", "updatedAt"] }
+                  },
+                  {
+                    model: product_type,
+                    attributes: { exclude: ["createdAt", "updatedAt"] }
+                  },
+                  {
+                    model: product_size,
+                    attributes: { exclude: ["createdAt", "updatedAt"] }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      });
+
+      const promises = await Promise.all(
+        data.transaction_details.map(async (item, index) => {
+          const id = item.product_variant.product.id;
+          const gallery = await product_galleries.findAll({ where: { product_id: id } });
+          data.transaction_details[index].product_variant.product.dataValues.product_galleries = gallery;
+        })
+      );
+
+      await Promise.all(promises);
+
+      data.transaction_details.map(async (item, index) => {
+        const id = item.product_variant.product.id;
+        const gallery = await product_galleries.findAll({ where: { product_id: id } });
+        data.transaction_details[index].product_variant.product.dataValues.product_galleries = gallery;
+      });
+
       if (!data) {
         throw { name: "notFound" };
       }

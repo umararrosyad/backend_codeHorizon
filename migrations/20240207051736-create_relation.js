@@ -12,8 +12,10 @@ module.exports = {
     await relationFeedback(queryInterface);
     await relationProductGalleries(queryInterface);
     await relationProductVariant(queryInterface);
-    await relationTransactionDetail(queryInterface)
-    await relationTransaction(queryInterface)
+    await relationTransactionDetail(queryInterface);
+    await relationTransaction(queryInterface);
+    await relationWarehouses(queryInterface)
+    await relationCities(queryInterface)
   },
 
   async down(queryInterface, Sequelize) {
@@ -82,11 +84,75 @@ async function relationProductType(queryInterface) {
 
 async function relationAddress(queryInterface) {
   await queryInterface.addConstraint("addresses", {
+    fields: ["city_id"],
+    type: "foreign key",
+    name: "fk_addresses_city",
+    references: {
+      table: "cities",
+      field: "id"
+    },
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE"
+  });
+
+  await queryInterface.addConstraint("addresses", {
+    fields: ["province_id"],
+    type: "foreign key",
+    name: "fk_addresses_province",
+    references: {
+      table: "provinces",
+      field: "id"
+    },
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE"
+  });
+
+  await queryInterface.addConstraint("addresses", {
     fields: ["user_id"],
     type: "foreign key",
     name: "fk_addresses_users",
     references: {
       table: "users",
+      field: "id"
+    },
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE"
+  });
+}
+
+async function relationWarehouses(queryInterface) {
+  await queryInterface.addConstraint("Werehouses", {
+    fields: ["city_id"],
+    type: "foreign key",
+    name: "fk_werehouses_city",
+    references: {
+      table: "cities",
+      field: "id"
+    },
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE"
+  });
+
+  await queryInterface.addConstraint("Werehouses", {
+    fields: ["province_id"],
+    type: "foreign key",
+    name: "fk_werehouses_province",
+    references: {
+      table: "provinces",
+      field: "id"
+    },
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE"
+  });
+}
+async function relationCities(queryInterface) {
+
+  await queryInterface.addConstraint("cities", {
+    fields: ["province_id"],
+    type: "foreign key",
+    name: "fk_cities_province",
+    references: {
+      table: "provinces",
       field: "id"
     },
     onDelete: "CASCADE",

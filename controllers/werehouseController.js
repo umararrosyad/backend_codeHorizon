@@ -1,4 +1,4 @@
-const { Werehouses } = require("../models");
+const { Werehouses, provinces, cities } = require("../models");
 const axios = require("axios");
 const { Op } = require("sequelize");
 require("dotenv").config();
@@ -15,19 +15,20 @@ class WerehouseController {
         [Op.or]: [{ werehouse_name: { [Op.iLike]: `%${searchName}%` } }]
       };
 
-      const data = await Werehouses.findAll({ where: searchCondition, offset, limit, attributes: { exclude: ["createdAt", "updatedAt"] }, order: [["id", "ASC"]] });
+      const data = await Werehouses.findAll({
+        where: searchCondition,
+        offset,
+        limit,
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        order: [["id", "ASC"]],
+        include: [
+          { model: provinces, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: cities, attributes: { exclude: ["createdAt", "updatedAt"] } }
+        ]
+      });
       // console.log(data);
       if (!data[0]) {
         throw { name: "notFound" };
-      }
-      for (let i = 0; i < data.length; i++) {
-        const werehouse = data[i].dataValues;
-        const city = werehouse.city_id;
-        const province = werehouse.province_id;
-        const response = await getName(city, province);
-
-        data[i].dataValues.city_name = response.city_name;
-        data[i].dataValues.province_name = response.province;
       }
 
       const count = await Werehouses.count({

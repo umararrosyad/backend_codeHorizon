@@ -1,18 +1,15 @@
-const { Werehouses } = require("../models");
+const { provinces, cities } = require("../models");
 const axios = require("axios");
 const { Op } = require("sequelize");
 require('dotenv').config();
 
 class WerehouseController {
   static async getCity(req, res, next) {
-    try {
-      const response = await axios.get("https://api.rajaongkir.com/starter/city", {
-        headers: {
-          key: process.env.Token_raja_ongkir
-        }
-      });
-
-      const data = response.data.rajaongkir.results;
+    try{
+    let data = await cities.findAll({ attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if (!data[0]) {
+        throw { name: "notFound" };
+      }
       res.status(200).json({
         status: "success",
         message: "Data berhasil ditemukan.",
@@ -25,13 +22,10 @@ class WerehouseController {
 
   static async getProvince(req, res, next) {
     try {
-      const response = await axios.get("https://api.rajaongkir.com/starter/province", {
-        headers: {
-          key: process.env.Token_raja_ongkir
-        }
-      });
-
-      const data = response.data.rajaongkir.results;
+      let data = await provinces.findAll({ attributes: { exclude: ["createdAt", "updatedAt"] } });
+      if (!data[0]) {
+        throw { name: "notFound" };
+      }
       res.status(200).json({
         status: "success",
         message: "Data berhasil ditemukan.",

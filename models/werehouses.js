@@ -11,6 +11,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Werehouses.hasMany(models.products, { foreignKey: "werehouse_id" });
+      Werehouses.belongsTo(models.provinces, { foreignKey: "province_id" });
+      Werehouses.belongsTo(models.cities, { foreignKey: "city_id" });
     }
   }
   Werehouses.init({
