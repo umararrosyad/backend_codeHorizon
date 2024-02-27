@@ -1,4 +1,4 @@
-const { products, Werehouses, categories, product_galleries, product_size, product_type, expedition_products, expedition, product_variant, feedbacks } = require("../models");
+const { products, Werehouses, categories, transaction_details, transactions, product_galleries, product_size, product_type, expedition_products, expedition, product_variant, feedbacks } = require("../models");
 const { Op } = require("sequelize");
 class ProductController {
   static async getAll(req, res, next) {
@@ -6,6 +6,8 @@ class ProductController {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
 
+      const short = req.query.short || "";
+      console.log(short)
       const offset = (page - 1) * limit;
       const searchName = req.query.name || "";
 
@@ -22,7 +24,7 @@ class ProductController {
         include: [
           { model: categories, attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: Werehouses, attributes: { exclude: ["createdAt", "updatedAt"] } },
-          { model: product_galleries, order : [["id", "ASC"]], attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: product_galleries, order: [["id", "ASC"]], attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } },
           {
@@ -31,7 +33,12 @@ class ProductController {
             include: [
               { model: feedbacks, attributes: { exclude: ["createdAt", "updatedAt"] } },
               { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
-              { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } }
+              { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } },
+              {
+                model: transaction_details,
+                attributes: { exclude: ["createdAt", "updatedAt"] },
+                include: [{ model: transactions, attributes: { exclude: ["createdAt", "updatedAt"] }, where: { transaction_status: "Selesai" } }]
+              }
             ]
           },
           {
@@ -44,7 +51,15 @@ class ProductController {
 
       const data1 = inputRating(data, getAllRatings(data));
       const data2 = inputPrice(data1, getPrice(data));
+      const data3 = inputQty(data2, getSold(data));
 
+      if (short === "rating") {
+        data3.sort((a, b) => parseFloat(b.dataValues.rating_product) - parseFloat(a.dataValues.rating_product));
+      } else if (short === "total_sold") {
+        data3.sort((a, b) => parseFloat(b.dataValues.total_sold) - parseFloat(a.dataValues.total_sold));
+      } else if(short === "price"){
+        data3.sort((a, b) => parseFloat(a.dataValues.min_price) - parseFloat(b.dataValues.min_price));
+      }
       const count = await products.count({
         where: searchCondition
       });
@@ -58,7 +73,7 @@ class ProductController {
       res.status(200).json({
         status: "success",
         message: "Data berhasil ditemukan.",
-        data: data2,
+        data: data3,
         pagination: {
           currentPage: page,
           totalPages,
@@ -105,11 +120,12 @@ class ProductController {
 
       const data1 = inputRating(data, getAllRatings(data));
       const data2 = inputPrice(data1, getPrice(data));
+      const data3 = inputQty(data2, getSold(data));
 
       res.status(200).json({
         status: "success",
         message: "Data berhasil ditemukan.",
-        data: data2
+        data: data3
       });
     } catch (error) {
       next(error);
@@ -141,12 +157,12 @@ class ProductController {
         product_size_id: null,
         weight: 0,
         price: 0,
-        stock : 0,
+        stock: 0,
         createdAt: new Date(),
         updatedAt: new Date()
       });
 
-      console.log(data2)
+      console.log(data2);
       res.status(201).json({
         status: "success",
         message: "Data berhasil dibuat.",
@@ -208,14 +224,24 @@ class ProductController {
 
 function calculateAverage(arr) {
   const sum = arr.reduce((total, num) => total + num, 0);
-  return sum / arr.length;
+  const average = sum / arr.length;
+  return average.toFixed(1);
 }
 
 function inputPrice(arr, price) {
   for (let i = 0; i < arr.length; i++) {
-    if (price[i]) {
-      arr[i].dataValues.min_price = `${Math.min(...price[i])}`;
-      arr[i].dataValues.max_price = `${Math.min(...price[i])}`;
+    if (price[i].length > 0) {
+      const nonZeroPrices = price[i].filter(val => val !== 0);
+      if (nonZeroPrices.length > 0) {
+        // Jika ada nilai yang tidak sama dengan 0, gunakan nilai minimal tersebut
+        arr[i].dataValues.min_price = `${Math.min(...nonZeroPrices)}`;
+      } else {
+        // Jika semua nilai adalah 0, atur min_price menjadi "0"
+        arr[i].dataValues.min_price = "0";
+      }
+
+      // Menggunakan nilai minimal dari semua harga
+      arr[i].dataValues.max_price = `${Math.max(...price[i])}`;
     } else {
       arr[i].dataValues.min_price = "0";
       arr[i].dataValues.max_price = "0";
@@ -227,6 +253,13 @@ function inputPrice(arr, price) {
 function inputRating(arr, rating) {
   for (let i = 0; i < arr.length; i++) {
     arr[i].dataValues.rating_product = `${rating[i]}`;
+  }
+  return arr;
+}
+
+function inputQty(arr, qty) {
+  for (let i = 0; i < arr.length; i++) {
+    arr[i].dataValues.total_sold = `${qty[i]}`;
   }
   return arr;
 }
@@ -272,6 +305,28 @@ function getAllRatings(data) {
   }
 
   return ratings;
+}
+
+function getSold(data) {
+  const qtyArray = [];
+
+  for (let i = 0; i < data.length; i++) {
+    let qty = 0;
+    const variants = data[i].product_variants;
+
+    for (let j = 0; j < variants.length; j++) {
+      const details = variants[j].transaction_details;
+
+      for (let k = 0; k < details.length; k++) {
+        if (details[k].qty) {
+          qty += details[k].qty;
+        }
+      }
+    }
+    qtyArray.push(qty);
+  }
+
+  return qtyArray;
 }
 
 module.exports = ProductController;

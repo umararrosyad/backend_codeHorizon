@@ -15,6 +15,7 @@ const cartRouter = require("./cart");
 const addressRouter = require("./addresses");
 const werehouseRouter = require("./werehouse");
 const rajaongkir = require("./rajaOngkir");
+const dashboard = require("./dashboard");
 const transactionAdminController = require("./transactionAdmin");
 
 
@@ -39,5 +40,6 @@ router.use("/transactions", transactionAdminController);
 router.use("/expeditions", expeditionRouter);
 router.use("/werehouses", werehouseRouter);
 router.use("/rajaongkirs", rajaongkir);
+router.use("/dashboard", dashboard);
 
 module.exports = router;
