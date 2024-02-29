@@ -5,6 +5,9 @@ const auth = require("../middleware/auth")
 
 
 router.get("/:product_id/variants/", ProductVariantController.getAll);
+router.get("/:product_id/variants/detail", ProductVariantController.getVariantDetail);
+router.get("/:product_id/variants/type", ProductVariantController.getWhereType);
+router.get("/:product_id/variants/size", ProductVariantController.getWhereSize);
 router.get("/:product_id/variants/:id", ProductVariantController.getOne);
 router.post("/:product_id/variants/",auth, ProductVariantController.create);
 router.put("/:product_id/variants/:id", auth,ProductVariantController.update);

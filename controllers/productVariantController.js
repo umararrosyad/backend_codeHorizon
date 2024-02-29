@@ -26,6 +26,93 @@ class ProductVariantController {
     }
   }
 
+  static async getVariantDetail(req, res, next) {
+    try {
+      const { product_id} = req.params;
+      const {product_type_id, product_size_id } = req.query
+      if (!product_type_id || !product_size_id ) {
+        throw { name: "nullParameter" };
+      }
+      const data = await product_variant.findAll({
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        order: [["product_type_id", "ASC"]],
+        include: [
+          { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } }
+        ],
+        where: { product_id, product_type_id, product_size_id }
+      });
+      if (!data[0]) {
+        throw { name: "notFound" };
+      }
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil ditemukan",
+        data
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+   static async getWhereType(req, res, next) {
+    try {
+      const { product_id} = req.params;
+      const {product_type_id } = req.query
+      if (!product_type_id ) {
+        throw { name: "nullParameter" };
+      }
+      const data = await product_variant.findAll({
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        order: [["product_type_id", "ASC"]],
+        include: [
+          { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } }
+        ],
+        where: { product_id, product_type_id }
+      });
+      if (!data[0]) {
+        throw { name: "notFound" };
+      }
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil ditemukan",
+        data
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getWhereSize(req, res, next) {
+    try {
+      const { product_id} = req.params;
+      const {product_size_id } = req.query
+      if (!product_type_id ) {
+        throw { name: "nullParameter" };
+      }
+      const data = await product_variant.findAll({
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        order: [["product_type_id", "ASC"]],
+        include: [
+          { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } }
+        ],
+        where: { product_id, product_size_id }
+      });
+      if (!data[0]) {
+        throw { name: "notFound" };
+      }
+      res.status(200).json({
+        status: "success",
+        message: "data berhasil ditemukan",
+        data
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async getOne(req, res, next) {
     try {
       const { product_id, id } = req.params;
@@ -84,7 +171,7 @@ class ProductVariantController {
     try {
       const { weight, price, stock } = req.body;
       const { id } = req.params;
-      const [updateCount, [updatedItem]] = await product_variant.update({ stock, weight, price }, {where : {id}, returning: true });
+      const [updateCount, [updatedItem]] = await product_variant.update({ stock, weight, price }, { where: { id }, returning: true });
       const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
       const status = updateCount === 1 ? "success" : "error";
       const data = updateCount === 1 ? updatedItem : null;
@@ -101,8 +188,8 @@ class ProductVariantController {
   static async delete(req, res, next) {
     try {
       const { id } = req.params;
-      const data = product_variant.findByPk()
-      if(!data){
+      const data = product_variant.findByPk();
+      if (!data) {
         throw { name: "notFound" };
       }
       await product_variant.destroy({ where: { id } });

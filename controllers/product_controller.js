@@ -143,7 +143,7 @@ class ProductController {
         include: [
           { model: categories, attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: Werehouses, attributes: { exclude: ["createdAt", "updatedAt"] } },
-          { model: product_galleries, attributes: { exclude: ["createdAt", "updatedAt"] } },
+          { model: product_galleries, order: [["id", "ASC"]], attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
           { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } },
           {
@@ -152,7 +152,12 @@ class ProductController {
             include: [
               { model: feedbacks, attributes: { exclude: ["createdAt", "updatedAt"] } },
               { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
-              { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } }
+              { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } },
+              {
+                model: transaction_details,
+                attributes: { exclude: ["createdAt", "updatedAt"] },
+                include: [{ model: transactions, attributes: { exclude: ["createdAt", "updatedAt"] }, where: { transaction_status: "Selesai" } }]
+              }
             ]
           },
           {
@@ -167,14 +172,34 @@ class ProductController {
         throw { name: "notFound" };
       }
 
-      const data1 = inputRating(data, getAllRatings(data));
-      const data2 = inputPrice(data1, getPrice(data));
-      const data3 = inputQty(data2, getSold(data));
+      const rating = getAllRatingsOne(data);
+      data.dataValues.rating_product = `${rating[0]}`;
+      const price = getPriceOne(data);
+      console.log(price)
+      if (price[0].length > 0) {
+        const nonZeroPrices = price[0].filter((val) => val !== 0);
+        if (nonZeroPrices.length > 0) {
+          data.dataValues.min_price = `${Math.min(...nonZeroPrices)}`;
+          data.dataValues.max_price = `${Math.max(...price[0])}`;
+        } else {
+          // Semua harga adalah 0
+          data.dataValues.min_price = "0";
+          data.dataValues.max_price = "0";
+        }
+      } else {
+        // Tidak ada harga
+        data.dataValues.min_price = "0";
+        data.dataValues.max_price = "0";
+      }
+      const sold = getSoldOne(data);
+      data.dataValues.total_sold = `${sold[0]}`;
+
+      // console.log(sold);
 
       res.status(200).json({
         status: "success",
         message: "Data berhasil ditemukan.",
-        data: data3
+        data: data
       });
     } catch (error) {
       next(error);
@@ -374,6 +399,101 @@ function getSold(data) {
     }
     qtyArray.push(qty);
   }
+
+  return qtyArray;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+// function inputPrice(arr, price) {
+//   for (let i = 0; i < arr.length; i++) {
+//     if (price[i].length > 0) {
+//       const nonZeroPrices = price[i].filter((val) => val !== 0);
+//       if (nonZeroPrices.length > 0) {
+//         // Jika ada nilai yang tidak sama dengan 0, gunakan nilai minimal tersebut
+//         arr[i].dataValues.min_price = `${Math.min(...nonZeroPrices)}`;
+//       } else {
+//         // Jika semua nilai adalah 0, atur min_price menjadi "0"
+//         arr[i].dataValues.min_price = "0";
+//       }
+
+//       // Menggunakan nilai minimal dari semua harga
+//       arr[i].dataValues.max_price = `${Math.max(...price[i])}`;
+//     } else {
+//       arr[i].dataValues.min_price = "0";
+//       arr[i].dataValues.max_price = "0";
+//     }
+//   }
+//   return arr;
+// }
+
+// function inputRating(arr, rating) {
+//   for (let i = 0; i < arr.length; i++) {
+//     arr[i].dataValues.rating_product = `${rating[i]}`;
+//   }
+//   return arr;
+// }
+
+// function inputQty(arr, qty) {
+//   for (let i = 0; i < arr.length; i++) {
+//     arr[i].dataValues.total_sold = `${qty[i]}`;
+//   }
+//   return arr;
+// }
+
+function getPriceOne(data) {
+  const price = [];
+  let variant_price = [];
+  const variants = data.product_variants;
+  for (let j = 0; j < variants.length; j++) {
+    variant_price.push(variants[j].dataValues.price);
+  }
+  price.push(variant_price);
+  return price;
+}
+
+function getAllRatingsOne(data) {
+  const ratings = [];
+
+  let variant_rating = [];
+  const variants = data.product_variants;
+
+  for (let j = 0; j < variants.length; j++) {
+    const feedbacks = variants[j].feedbacks;
+
+    for (let k = 0; k < feedbacks.length; k++) {
+      if (feedbacks[k].rating) {
+        variant_rating.push(feedbacks[k].rating);
+      }
+    }
+  }
+
+  if (variant_rating.length > 0) {
+    const averageRating = calculateAverage(variant_rating);
+    ratings.push(averageRating);
+  } else {
+    ratings.push(0);
+  }
+  console.log;
+  return ratings;
+}
+
+function getSoldOne(data) {
+  const qtyArray = [];
+
+  let qty = 0;
+  const variants = data.product_variants;
+
+  for (let j = 0; j < variants.length; j++) {
+    const details = variants[j].transaction_details;
+
+    for (let k = 0; k < details.length; k++) {
+      if (details[k].qty) {
+        qty += details[k].qty;
+      }
+    }
+  }
+  qtyArray.push(qty);
 
   return qtyArray;
 }
