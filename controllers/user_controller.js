@@ -67,8 +67,8 @@ class UserController {
 
   static async register(req, res, next) {
     try {
-      const { email, name, password, phone_number } = req.body;
-      if (!email || !name || !password || !phone_number) {
+      const { email, name, password, phone_number, username } = req.body;
+      if (!email || !name || !password || !phone_number || !username) {
         throw { name: "nullParameter" };
       }
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -78,7 +78,7 @@ class UserController {
         password: hashedPassword,
         phone_number,
         role: "user",
-        username: null,
+        username,
         photo_url: null
       });
 
@@ -104,10 +104,11 @@ class UserController {
         throw { name: "invalidCaredential" };
       }
       const token = jwt.sign({ id: user.id }, "codehorizon");
-      res.cookie("access_token", token, { http_only: true }).status(200).json({
+      res.status(200).json({
         status: "success",
         message: "login berhasil",
-        data: user
+        data: user,
+        token
       });
     } catch (err) {
       next(err);

@@ -7,47 +7,85 @@ class ProductController {
       const limit = parseInt(req.query.limit) || 10;
 
       const short = req.query.short || "";
-      console.log(short)
+
       const offset = (page - 1) * limit;
       const searchName = req.query.name || "";
-
+      const searchCategory = req.query.category_id || "";
+      console.log(searchCategory);
       const searchCondition = {
         [Op.or]: [{ name: { [Op.iLike]: `%${searchName}%` } }]
       };
 
-      let data = await products.findAll({
-        where: searchCondition,
-        offset,
-        limit,
-        order: [["id", "ASC"]],
-        attributes: ["id", "category_id", "name", "description"],
-        include: [
-          { model: categories, attributes: { exclude: ["createdAt", "updatedAt"] } },
-          { model: Werehouses, attributes: { exclude: ["createdAt", "updatedAt"] } },
-          { model: product_galleries, order: [["id", "ASC"]], attributes: { exclude: ["createdAt", "updatedAt"] } },
-          { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
-          { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } },
-          {
-            model: product_variant,
-            attributes: { exclude: ["createdAt", "updatedAt"] },
-            include: [
-              { model: feedbacks, attributes: { exclude: ["createdAt", "updatedAt"] } },
-              { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
-              { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } },
-              {
-                model: transaction_details,
-                attributes: { exclude: ["createdAt", "updatedAt"] },
-                include: [{ model: transactions, attributes: { exclude: ["createdAt", "updatedAt"] }, where: { transaction_status: "Selesai" } }]
-              }
-            ]
-          },
-          {
-            model: expedition_products,
-            attributes: { exclude: ["createdAt", "updatedAt"] },
-            include: [{ model: expedition, attributes: { exclude: ["createdAt", "updatedAt"] } }]
-          }
-        ]
-      });
+      let data;
+      if (searchCategory == "") {
+        data = await products.findAll({
+          where: searchCondition,
+          offset,
+          limit,
+          order: [["id", "ASC"]],
+          attributes: ["id", "category_id", "name", "description"],
+          include: [
+            { model: categories, attributes: { exclude: ["createdAt", "updatedAt"] } },
+            { model: Werehouses, attributes: { exclude: ["createdAt", "updatedAt"] } },
+            { model: product_galleries, order: [["id", "ASC"]], attributes: { exclude: ["createdAt", "updatedAt"] } },
+            { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
+            { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } },
+            {
+              model: product_variant,
+              attributes: { exclude: ["createdAt", "updatedAt"] },
+              include: [
+                { model: feedbacks, attributes: { exclude: ["createdAt", "updatedAt"] } },
+                { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
+                { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } },
+                {
+                  model: transaction_details,
+                  attributes: { exclude: ["createdAt", "updatedAt"] },
+                  include: [{ model: transactions, attributes: { exclude: ["createdAt", "updatedAt"] }, where: { transaction_status: "Selesai" } }]
+                }
+              ]
+            },
+            {
+              model: expedition_products,
+              attributes: { exclude: ["createdAt", "updatedAt"] },
+              include: [{ model: expedition, attributes: { exclude: ["createdAt", "updatedAt"] } }]
+            }
+          ]
+        });
+      } else {
+        data = await products.findAll({
+          where: searchCondition,
+          offset,
+          limit,
+          order: [["id", "ASC"]],
+          attributes: ["id", "category_id", "name", "description"],
+          include: [
+            { model: categories, attributes: { exclude: ["createdAt", "updatedAt"] }, where: { id: searchCategory } },
+            { model: Werehouses, attributes: { exclude: ["createdAt", "updatedAt"] } },
+            { model: product_galleries, order: [["id", "ASC"]], attributes: { exclude: ["createdAt", "updatedAt"] } },
+            { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
+            { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } },
+            {
+              model: product_variant,
+              attributes: { exclude: ["createdAt", "updatedAt"] },
+              include: [
+                { model: feedbacks, attributes: { exclude: ["createdAt", "updatedAt"] } },
+                { model: product_size, attributes: { exclude: ["createdAt", "updatedAt"] } },
+                { model: product_type, attributes: { exclude: ["createdAt", "updatedAt"] } },
+                {
+                  model: transaction_details,
+                  attributes: { exclude: ["createdAt", "updatedAt"] },
+                  include: [{ model: transactions, attributes: { exclude: ["createdAt", "updatedAt"] }, where: { transaction_status: "Selesai" } }]
+                }
+              ]
+            },
+            {
+              model: expedition_products,
+              attributes: { exclude: ["createdAt", "updatedAt"] },
+              include: [{ model: expedition, attributes: { exclude: ["createdAt", "updatedAt"] } }]
+            }
+          ]
+        });
+      }
 
       const data1 = inputRating(data, getAllRatings(data));
       const data2 = inputPrice(data1, getPrice(data));
@@ -57,7 +95,7 @@ class ProductController {
         data3.sort((a, b) => parseFloat(b.dataValues.rating_product) - parseFloat(a.dataValues.rating_product));
       } else if (short === "total_sold") {
         data3.sort((a, b) => parseFloat(b.dataValues.total_sold) - parseFloat(a.dataValues.total_sold));
-      } else if(short === "price"){
+      } else if (short === "price") {
         data3.sort((a, b) => parseFloat(a.dataValues.min_price) - parseFloat(b.dataValues.min_price));
       }
       const count = await products.count({
@@ -231,7 +269,7 @@ function calculateAverage(arr) {
 function inputPrice(arr, price) {
   for (let i = 0; i < arr.length; i++) {
     if (price[i].length > 0) {
-      const nonZeroPrices = price[i].filter(val => val !== 0);
+      const nonZeroPrices = price[i].filter((val) => val !== 0);
       if (nonZeroPrices.length > 0) {
         // Jika ada nilai yang tidak sama dengan 0, gunakan nilai minimal tersebut
         arr[i].dataValues.min_price = `${Math.min(...nonZeroPrices)}`;
