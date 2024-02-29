@@ -17,6 +17,7 @@ class ProductController {
       };
 
       let data;
+      let count;
       if (searchCategory == "") {
         data = await products.findAll({
           where: searchCondition,
@@ -50,6 +51,9 @@ class ProductController {
               include: [{ model: expedition, attributes: { exclude: ["createdAt", "updatedAt"] } }]
             }
           ]
+        });
+        count = await products.count({
+          where: searchCondition
         });
       } else {
         data = await products.findAll({
@@ -85,6 +89,15 @@ class ProductController {
             }
           ]
         });
+
+        count = await products.count({
+          where: {
+            [Op.and]: [
+              searchCondition,
+              { category_id: searchCategory } // Menambahkan kondisi category_id = 1
+            ]
+          }
+        });
       }
 
       const data1 = inputRating(data, getAllRatings(data));
@@ -98,9 +111,7 @@ class ProductController {
       } else if (short === "price") {
         data3.sort((a, b) => parseFloat(a.dataValues.min_price) - parseFloat(b.dataValues.min_price));
       }
-      const count = await products.count({
-        where: searchCondition
-      });
+
       // console.log(count);
       const totalPages = Math.ceil(count / limit);
 
