@@ -13,16 +13,16 @@ class UserController {
       const searchName = req.query.name || "";
 
       const searchCondition = {
-        [Op.or]: [{ name: { [Op.iLike]: `%${searchName}%` } }]
+        [Op.or]: [{ name: { [Op.iLike]: `%${searchName}%` } }],
       };
       const data = await users.findAll({
         where: searchCondition,
         include: [addresses],
         limit,
-        offset
+        offset,
       });
       const count = await users.count({
-        where: searchCondition
+        where: searchCondition,
       });
       const totalPages = Math.ceil(count / limit);
 
@@ -38,8 +38,8 @@ class UserController {
           currentPage: page,
           totalPages,
           totalItems: count,
-          perPage: limit
-        }
+          perPage: limit,
+        },
       });
     } catch (error) {
       next(error);
@@ -51,14 +51,14 @@ class UserController {
       const { id } = req.params;
 
       const data = await users.findByPk(id, {
-        include: [addresses]
+        include: [addresses],
       });
       if (!data) throw { name: "notFound" };
 
       res.status(200).json({
         status: "success",
         message: "data berhasil ditemukan",
-        data
+        data,
       });
     } catch (err) {
       next(err);
@@ -79,13 +79,13 @@ class UserController {
         phone_number,
         role: "user",
         username,
-        photo_url: null
+        photo_url: null,
       });
 
       res.status(201).json({
         status: "success",
         message: "register berhasil",
-        data: newUser
+        data: newUser,
       });
     } catch (error) {
       next(error);
@@ -108,7 +108,7 @@ class UserController {
         status: "success",
         message: "login berhasil",
         data: user,
-        token
+        token,
       });
     } catch (err) {
       next(err);
@@ -131,7 +131,7 @@ class UserController {
       res.status(200).json({
         status: "success",
         message: "login berhasil",
-        data: token
+        data: token,
       });
     } catch (err) {
       next(err);
@@ -141,26 +141,38 @@ class UserController {
   static async update(req, res, next) {
     try {
       const { id } = req.params;
-      const { name, email, username, password, phone_number, photo_url } = req.body;
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const [updateCount, [updatedItem]] = await users.update(
-        {
-          name,
-          email,
-          username,
-          password: hashedPassword,
-          phone_number,
-          photo_url
-        },
-        { where: { id }, returning: true }
-      );
+      const { name, email, username, password, phone_number, photo_url } =
+        req.body;
+      const updateFields = {
+        name,
+        email,
+        username,
+        phone_number,
+      };
+
+      // Cek apakah photo_url ada dalam permintaan
+      if (password) {
+        // Jika ada, tambahkan ke bidang yang akan diperbarui
+        const hashedPassword = await bcrypt.hash(password, 10);
+        updateFields.password = hashedPassword;
+      }
+
+      if (photo_url !== undefined) {
+        // Jika photo_url ada dalam permintaan, tambahkan ke bidang yang akan diperbarui
+        updateFields.photo_url = photo_url;
+      }
+
+      const [updateCount, [updatedItem]] = await users.update(updateFields, {
+        where: { id },
+        returning: true,
+      });
       const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
       const status = updateCount === 1 ? "success" : "error";
       const data = updateCount === 1 ? updatedItem : null;
       res.status(200).json({
         status,
         message,
-        data
+        data,
       });
     } catch (error) {
       next(error);
@@ -178,7 +190,7 @@ class UserController {
       res.status(200).json({
         status: "success",
         message: "data berhasil dihapus",
-        data
+        data,
       });
     } catch (err) {
       next(err);
