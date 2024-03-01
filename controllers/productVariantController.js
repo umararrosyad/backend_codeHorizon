@@ -59,9 +59,11 @@ class ProductVariantController {
     try {
       const { product_id} = req.params;
       const {product_type_id } = req.query
+      console.log(product_type_id)
       if (!product_type_id ) {
         throw { name: "nullParameter" };
       }
+
       const data = await product_variant.findAll({
         attributes: { exclude: ["createdAt", "updatedAt"] },
         order: [["product_type_id", "ASC"]],
@@ -88,7 +90,8 @@ class ProductVariantController {
     try {
       const { product_id} = req.params;
       const {product_size_id } = req.query
-      if (!product_type_id ) {
+      console.log(product_size_id)
+      if (!product_size_id ) {
         throw { name: "nullParameter" };
       }
       const data = await product_variant.findAll({
@@ -100,6 +103,7 @@ class ProductVariantController {
         ],
         where: { product_id, product_size_id }
       });
+      console.log(data)
       if (!data[0]) {
         throw { name: "notFound" };
       }

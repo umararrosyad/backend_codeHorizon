@@ -1,9 +1,8 @@
-const { carts, product_variant } = require("../models");
+const { carts, product_variant, products,product_size,product_type, Werehouses,cities,provinces } = require("../models");
 
 class CartController {
   static async getAll(req, res, next) {
     try {
-
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
 
@@ -11,15 +10,30 @@ class CartController {
       const { user_id } = req.params;
       const data = await carts.findAll({
         where: { user_id },
-        include: [product_variant],
-        attributes: { exclude: ["createdAt", "updatedAt"]},
-        offset, limit 
+        include: [
+          {
+            model: product_variant,
+            include: [
+              { model: products, 
+                include: [{
+                  model :Werehouses,
+                  include :[cities,provinces]
+                }] 
+              },
+              {model :product_size},
+              {model : product_type}
+            ]
+          }
+        ],
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        offset,
+        limit
       });
       const count = await carts.count();
       const totalPages = Math.ceil(count / limit);
 
       if (data.length === 0 && page > 1) {
-        throw { name: "notFound" }; 
+        throw { name: "notFound" };
       }
 
       res.status(200).json({
@@ -130,7 +144,7 @@ class CartController {
         {
           qty
         },
-        { where: { id}, returning: true }
+        { where: { id }, returning: true }
       );
       const message = updateCount === 1 ? "Data berhasil diupdate" : "Data gagal diupdate";
       const status = updateCount === 1 ? "success" : "error";

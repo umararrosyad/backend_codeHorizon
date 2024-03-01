@@ -17,16 +17,7 @@ class AddressController {
       if (!data[0]) {
         throw { name: "notFound" };
       }
-
-      for (let i = 0; i < data.length; i++) {
-        const werehouse = data[i].dataValues;
-        const city = werehouse.city_id;
-        const province = werehouse.province_id;
-        const response = await getName(city, province);
-        data[i].dataValues.city_name = response.city_name;
-        data[i].dataValues.province_name = response.province;
-      }
-
+      
       res.status(200).json({
         status: "success",
         message: "data berhasil dibuat",
